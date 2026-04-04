@@ -38,7 +38,7 @@ def IsAdmissible
     (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
-  OplaxSound V Γ g ∧ HasComplexLikeStructure V
+  Coh.Kinematics.OplaxSound V Γ g ∧ HasComplexLikeStructure V
 
 /--
 A candidate for a spinor module.
@@ -77,14 +77,5 @@ theorem Dirac_Inevitable_Schema
 --------------------------------------------------------------------------------
 -- Integrity check
 --------------------------------------------------------------------------------
-
-/--
-This file serves as the abstract interface for the safety kernel's capstone.
-It ensures that the final "Dirac is inevitable" claim is grounded in the proved
-requirements of the Kinematic, Thermodynamic, and Geometric layers.
-
-By using a schema instead of an axiomatized theorem, we maintain a zero-placeholder
-standard for the final uniqueness proof.
--/
 
 end Coh.Physics

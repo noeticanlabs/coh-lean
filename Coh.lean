@@ -32,6 +32,6 @@ obligations identified as bridges (schemas) for final discharge.
 
 namespace Coh
 
-/-- Root namespace for the Coh safety kernel. -/
+-- Root namespace for the Coh safety kernel.
 
 end Coh
