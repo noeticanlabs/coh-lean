@@ -30,12 +30,14 @@ def CommutesWithGammaFamily
 A complex-like structure is Clifford-compatible if its distinguished `J`
 commutes with the entire gamma family.
 -/
+def CliffordCompatibleComplexLike {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) : Prop :=
   ∃ C : ComplexLike V, CommutesWithGammaFamily C.J Γ
 
 /--
 A stronger packaged version that keeps the witness data explicit.
 -/
 structure ComplexCliffordCarrier
+    (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V) where
   complexLike : ComplexLike V
   commutes : CommutesWithGammaFamily complexLike.J Γ
@@ -45,19 +47,22 @@ structure ComplexCliffordCarrier
 --------------------------------------------------------------------------------
 
 lemma CliffordCompatibleComplexLike.ofCarrier
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
-    (C : ComplexCliffordCarrier Γ) :
+    (C : ComplexCliffordCarrier V Γ) :
     CliffordCompatibleComplexLike Γ := by
   exact ⟨C.complexLike, C.commutes⟩
 
 noncomputable def ComplexCliffordCarrier.ofCompatible
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (h : CliffordCompatibleComplexLike Γ) :
-    ComplexCliffordCarrier Γ := by
+    ComplexCliffordCarrier V Γ := by
   choose C hC using h
   exact { complexLike := C, commutes := hC }
 
 lemma hasComplexLike_of_compatible
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (h : CliffordCompatibleComplexLike Γ) :
     HasComplexLikeStructure V := by
@@ -74,6 +79,7 @@ if a carrier admits a complex-like structure, then for the given gamma family
 there exists a complex-like witness commuting with that gamma family.
 -/
 def ComplexLikeCommutesBridge
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V) : Prop :=
   HasComplexLikeStructure V → CliffordCompatibleComplexLike Γ
 
@@ -82,6 +88,7 @@ Once the bridge is supplied, any complex-like carrier upgrades to a
 Clifford-compatible complex-like carrier.
 -/
 theorem compatible_of_bridge
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (hBridge : ComplexLikeCommutesBridge Γ)
     (hCx : HasComplexLikeStructure V) :
@@ -93,13 +100,14 @@ Combining the persistence bridge from `T6_PersistenceForcesRotation.lean`
 with the commutation bridge yields a Clifford-compatible complex-like structure.
 -/
 theorem compatible_of_persistentCycle_and_bridge
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (hPersist : PersistenceForcesComplexLike V)
     (hComm : ComplexLikeCommutesBridge Γ)
     [AdmitsPersistentCycle V] :
     CliffordCompatibleComplexLike Γ := by
   apply hComm
-  exact hasComplexLike_of_persistentCycle (V := V) hPersist
+  exact hasComplexLike_of_persistentCycle hPersist
 
 --------------------------------------------------------------------------------
 -- Real 2D specialization
@@ -112,8 +120,8 @@ structure becomes Clifford-compatible.
 -/
 theorem real2_compatible_of_bridge
     (Γ : GammaFamily (ℝ × ℝ))
-    (hComm : ComplexLikeCommutesBridge (V := ℝ × ℝ) Γ) :
-    CliffordCompatibleComplexLike (V := ℝ × ℝ) Γ := by
+    (hComm : ComplexLikeCommutesBridge Γ) :
+    CliffordCompatibleComplexLike Γ := by
   apply hComm
   exact R2_hasComplexLikeStructure
 
@@ -126,6 +134,7 @@ A carrier supports a complex Clifford phase if it admits a complex-like structur
 that commutes with the gamma family.
 -/
 def SupportsComplexCliffordPhase
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V) : Prop :=
   CliffordCompatibleComplexLike Γ
 
@@ -134,6 +143,7 @@ Persistent admissible cyclic evolution plus the commutation bridge is sufficient
 for complex Clifford phase support.
 -/
 theorem supportsPhase_of_persistence_and_commutation
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (hPersist : PersistenceForcesComplexLike V)
     (hComm : ComplexLikeCommutesBridge Γ)
@@ -161,7 +171,7 @@ Specialization for ℝ²: the rotation-based complex structure
 commutes with any given gamma family on ℝ².
 -/
 example (Γ : GammaFamily (ℝ × ℝ)) :
-    ComplexLikeCommutesBridge (V := ℝ × ℝ) Γ :=
+    ComplexLikeCommutesBridge Γ :=
   complexLikeBridgeGeneric (ℝ × ℝ) Γ
 
 /--
@@ -170,9 +180,9 @@ Persistent cyclic admissibility + commutation bridge ⟹
 Clifford-compatible complex-like structure.
 -/
 theorem phase3_composition
-    (V : Type*) [CarrierSpace V]
+    {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
-    [hCycle : AdmitsPersistentCycle V]
+    [AdmitsPersistentCycle V]
     (hPersist : PersistenceForcesComplexLike V)
     (hComm : ComplexLikeCommutesBridge Γ) :
     SupportsComplexCliffordPhase Γ :=

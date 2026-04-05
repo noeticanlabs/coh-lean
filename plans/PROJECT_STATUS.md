@@ -1,7 +1,10 @@
 # Coh Lean Project Status
 
-**Last Updated**: 2026-04-04 (Post-Phase 0.5d–0.5e Completion)  
-**Overall Status**: ✅ **PHASES 0.5d–0.5e COMPLETE** | ⏳ **PHASE 1 READY TO START**
+> **Plan Status Class:** ACTIVE SOURCE OF TRUTH  
+> **Last Updated:** 2026-04-05  
+> **Completion Meaning:** In this file, status labels are global project labels. Earlier plan files may use “complete” only for a local phase or session scope.  
+> **Authoritative Interpretation Layer:** See [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md).  
+> **Legacy Note:** Older sections below are retained for provenance and may reflect earlier checkpoints rather than current repo-wide state.
 
 ---
 

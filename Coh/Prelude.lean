@@ -103,4 +103,7 @@ class CarrierSpace (V : Type*) extends
   NormedSpace ℝ V,
   FiniteDimensional ℝ V
 
+noncomputable instance : CarrierSpace ℝ where
+noncomputable instance : CarrierSpace (ℝ × ℝ) where
+
 end Coh

@@ -1,5 +1,9 @@
 # Session Completion Summary: T7 Complete, Phase 5b Initialized
 
+> **Plan Status Class:** HISTORICAL SNAPSHOT  
+> **Completion Meaning:** “Completion” in this file refers to that session’s scope only. It does not imply full project completion.  
+> **Current Source of Truth:** [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md) and [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
 **Session Duration**: ~2 hours  
 **Date**: 2026-04-05  
 **Scope**: Phase 5a (T7 Visibility Spectral Gap) - COMPLETE  

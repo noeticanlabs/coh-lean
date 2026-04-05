@@ -1,5 +1,9 @@
 # Coh Lean: Complete Roadmap to 100% Formalization
 
+> **Plan Status Class:** SUPERSEDED PLAN  
+> **Completion Meaning:** This roadmap is complete as a planning artifact only. It does not describe current live completion state.  
+> **Current Source of Truth:** [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md) and [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
 ## Overview
 
 Transform the Coh safety kernel from a formal scaffold with placeholder definitions into a complete, mechanized proof of **Dirac Inevitability**. 

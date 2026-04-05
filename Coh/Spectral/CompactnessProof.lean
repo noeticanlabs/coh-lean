@@ -1,7 +1,11 @@
 import Coh.Spectral.AnomalyStrength
-import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
-import Mathlib.Topology.UniformSpace.Compact
-import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+import Coh.Spectral.NormEquivalence
+import Mathlib.Analysis.Normed.Module.Basic
+import Mathlib.Analysis.Normed.Group.BallSphere
+import Mathlib.Topology.MetricSpace.ProperSpace
+import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Topology.Order.LocalExtr
+import Mathlib.Topology.Order.Compact
 
 noncomputable section
 
@@ -9,17 +13,17 @@ namespace Coh.Spectral
 
 open Coh.Core
 
-variable (V : Type*) [CarrierSpace V]
+variable {V : Type*} [CarrierSpace V]
 variable (Γ : GammaFamily V) (g : Metric)
 
 --------------------------------------------------------------------------------
 -- Clifford Rigidity Axiom
---
--- The Clifford structure is non-degenerate: anomaly strength is always strictly
--- positive on unit-norm frequencies. This is a fundamental property of Clifford
--- algebras and ensures violations are always detectable.
 --------------------------------------------------------------------------------
 
+/--
+Clifford Rigidity: On the unit frequency sphere, the anomaly is strictly positive.
+This is the foundational assumption for the Visibility Spectral Gap.
+-/
 axiom clifford_anomaly_positive_on_unit_sphere :
     ∀ (f : Idx → ℝ), frequencyNorm f = 1 → 0 < anomalyStrength Γ g f
 
@@ -27,187 +31,115 @@ axiom clifford_anomaly_positive_on_unit_sphere :
 -- Compactness-Based Proof of T7: Complete Lemmas with Proofs
 --------------------------------------------------------------------------------
 
-/--
-Lemma 1: Anomaly strength is continuous in frequency.
-
-The anomaly is a finite sum of products of continuous functions.
-- Frequency components f_μ, f_ν are continuous (projection)
-- Products are continuous
-- Operator norm is continuous
-- Sum is continuous
--/
+/-- Lemma 1: Anomaly strength is continuous in frequency. -/
 lemma anomalyStrength_continuous :
     Continuous (fun (f : Idx → ℝ) => anomalyStrength Γ g f) := by
   unfold anomalyStrength
-  apply Continuous.norm
-  apply Continuous.finset_sum
+  apply continuous_norm.comp
+  apply continuous_finset_sum
   intro μ _
-  apply Continuous.finset_sum
+  apply continuous_finset_sum
   intro ν _
-  have h_mul : Continuous fun f : Idx → ℝ => f μ * f ν := by
-    apply Continuous.mul
-    · exact continuous_apply μ
-    · exact continuous_apply ν
-  apply Continuous.smul_const
-  exact h_mul
+  have h_pair : Continuous fun (f : Idx → ℝ) => (f μ * f ν) :=
+    Continuous.mul (continuous_apply μ) (continuous_apply ν)
+  exact Continuous.smul h_pair continuous_const
 
-/--
-Lemma 2: Unit frequency sphere is compact in finite dimensions.
-
-In finite-dimensional normed spaces, the unit sphere is compact as a
-closed and bounded subset.
--/
-lemma unitSphere_compact :
+/-- Lemma 2: Unit frequency sphere is compact in finite dimensions. -/
+lemma unitSphere_compact [FiniteDimensional ℝ (Idx → ℝ)] :
     IsCompact {f : Idx → ℝ | frequencyNorm f = 1} := by
-  unfold frequencyNorm
-  exact isCompact_sphere 0 1
+  have : {f : Idx → ℝ | frequencyNorm f = 1} = Metric.sphere (0 : Idx → ℝ) 1 := by
+    ext f
+    simp [Metric.mem_sphere, dist_zero_right, frequencyNorm_eq_norm]
+  rw [this]
+  exact isCompact_sphere (0 : Idx → ℝ) 1
 
-/--
-Lemma 3: Positive minimum on unit sphere.
+/-- Lemma 3: Positive minimum on unit sphere.
+    This is proved by combining the compactness of the sphere with the
+    Clifford rigidity axiom using the Extreme Value Theorem. -/
+lemma anomalyStrength_positive_min_on_sphere [FiniteDimensional ℝ (Idx → ℝ)] :
+    ∃ ε > 0, ∀ f : Idx → ℝ, frequencyNorm f = 1 → ε ≤ anomalyStrength Γ g f := by
+  let S : Set (Idx → ℝ) := {f : Idx → ℝ | frequencyNorm f = 1}
+  have hSphereEq : S = Metric.sphere (0 : Idx → ℝ) 1 := by
+    ext f
+    simp [S, Metric.mem_sphere, dist_zero_right, frequencyNorm_eq_norm]
+  have hS_compact : IsCompact S := by
+    rw [hSphereEq]
+    exact isCompact_sphere (0 : Idx → ℝ) 1
+  have hS_nonempty : S.Nonempty := by
+    let i0 : Idx := ⟨0, by simp [Coh.dim]⟩
+    haveI : Nontrivial (Idx → ℝ) := by
+      refine ⟨⟨(fun i : Idx => if i = i0 then 1 else 0), 0, ?_⟩⟩
+      intro h
+      have h0 := congrArg (fun f : Idx → ℝ => f i0) h
+      simp [i0] at h0
+    refine hSphereEq ▸ ?_
+    exact (NormedSpace.sphere_nonempty (x := (0 : Idx → ℝ)) (r := 1)).2 zero_le_one
+  obtain ⟨f₀, hf₀_mem, hf₀_min⟩ :=
+    hS_compact.exists_isMinOn hS_nonempty ((anomalyStrength_continuous Γ g).continuousOn)
+  refine ⟨anomalyStrength Γ g f₀,
+    clifford_anomaly_positive_on_unit_sphere (Γ := Γ) (g := g) f₀ ?_, ?_⟩
+  · simpa [S] using hf₀_mem
+  · intro f hf
+    have hf_mem : f ∈ S := by
+      simpa [S] using hf
+    exact hf₀_min hf_mem
 
-The anomaly strength achieves a positive minimum on the unit sphere.
-This is the core of the compactness argument.
--/
-lemma anomalyStrength_positive_min_on_sphere :
-    ∃ ε > 0,
-      ∀ f : Idx → ℝ,
-        frequencyNorm f = 1 →
-        ε ≤ anomalyStrength Γ g f := by
-  let S := {f : Idx → ℝ | frequencyNorm f = 1}
-  let A := anomalyStrength Γ g
-
-  have h_comp : IsCompact S := unitSphere_compact
-  have h_cont : ContinuousOn A S := by
-    apply ContinuousOn.of_continuous
-    exact anomalyStrength_continuous
-
-  have h_image_compact : IsCompact (A '' S) := h_comp.image_of_continuousOn h_cont
-
-  -- S is nonempty: contains the standard basis vector e_0
-  have h_nonempty : S.Nonempty := by
-    use fun i => if i = 0 then 1 else 0
-    simp [frequencyNorm, S, norm_ite]
-
-  have h_nonempty_image : (A '' S).Nonempty := h_nonempty.image_nonempty
-
-  -- Compact nonempty sets attain their minimum
-  have ⟨a, ha_mem, ha_min⟩ : ∃ a ∈ A '' S, ∀ x ∈ A '' S, a ≤ x := by
-    have h_closed : IsClosed (A '' S) := h_image_compact.isClosed
-    have h_bdd : BddBelow (A '' S) := by
-      use 0
-      intro x ⟨f, _, rfl⟩
-      exact anomalyStrength_nonneg V Γ g f
-    have := h_image_compact.isInf_mem h_nonempty_image h_bdd
-    exact ⟨sInf (A '' S), this, fun x hx => csInf_le h_bdd hx⟩
-
-  -- The minimum is positive (from Clifford rigidity)
-  have h_pos : 0 < a := by
-    -- All anomalies are nonnegative
-    have h_nonneg : ∀ x ∈ A '' S, 0 ≤ x := by
-      intro x ⟨f, hf_in, rfl⟩
-      exact anomalyStrength_nonneg Γ g f
-    -- By Clifford rigidity, anomaly is positive on unit sphere
-    obtain ⟨f_min, hf_unit, rfl⟩ := ha_mem
-    exact clifford_anomaly_positive_on_unit_sphere f_min hf_unit
-
-  exact ⟨a, h_pos, fun f hf => ha_min ⟨f, hf, rfl⟩⟩
-
-/--
-Lemma 4: Quadratic homogeneity of anomaly.
-
-A(λf) = λ² A(f) for all scalars λ.
-
-This is the core structural property from Coh.Core.Clifford.anomaly_homogeneous_quadratic.
--/
-lemma anomalyStrength_homogeneous_quadratic (f : Idx → ℝ) (c : ℝ) :
+/-- Lemma 4: Quadratic homogeneity of anomaly. -/
+lemma anomalyStrength_homogeneous_quadratic_local (f : Idx → ℝ) (c : ℝ) :
     anomalyStrength Γ g (c • f) = (c ^ 2) * anomalyStrength Γ g f :=
-  anomaly_homogeneous_quadratic Γ g c f
+  anomalyStrength_homogeneous_quadratic Γ g f c
 
-/--
-Lemma 5: Frequency norm is homogeneous of degree 1.
-
-‖cf‖ = |c| · ‖f‖
--/
-lemma frequencyNorm_homogeneous (f : Idx → ℝ) (c : ℝ) :
-    frequencyNorm (c • f) = |c| * frequencyNorm f := by
-  unfold frequencyNorm
-  simp only [Pi.smul_apply]
-  exact norm_smul c f
-
---------------------------------------------------------------------------------
--- THE MAIN T7 THEOREM: Quadratic Spectral Gap
---------------------------------------------------------------------------------
-
-/--
-THEOREM T7: Visibility Spectral Gap (Quadratic Form)
-
-In finite-dimensional spaces with Clifford structure, the anomaly strength
-has a uniform positive lower bound scaling quadratically with frequency norm.
-
-This ensures violations cannot be arbitrarily weak.
--/
-theorem T7_Quadratic_Spectral_Gap :
-    ∃ c₀ > 0,
-      ∀ f : Idx → ℝ,
-        f ≠ (fun _ => 0) →
-        c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f := by
-  obtain ⟨ε, hε_pos, hε_min⟩ := anomalyStrength_positive_min_on_sphere
-
+/-- THEOREM T7: Visibility Spectral Gap (Quadratic Form) -/
+theorem T7_Quadratic_Spectral_Gap [FiniteDimensional ℝ (Idx → ℝ)] :
+    ∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f := by
+  obtain ⟨ε, hε_pos, hε_min⟩ := anomalyStrength_positive_min_on_sphere Γ g
   use ε, hε_pos
   intro f hf
 
-  by_cases h_norm_zero : frequencyNorm f = 0
-  · -- If norm is zero, then f = 0
-    have : f = fun _ => 0 := by
-      ext i
-      have : |f i| ≤ 0 := by
-        have h1 : |f i| ≤ ‖f‖ := abs_le_norm _
-        have h2 : ‖f‖ = frequencyNorm f := rfl
-        rw [h2, h_norm_zero] at h1
-        exact h1
-      exact abs_nonpos_iff.mp this
-    exact absurd this hf
-
-  -- f is nonzero, normalize it
+  -- f is nonzero, so frequencyNorm f > 0
   have h_norm_pos : 0 < frequencyNorm f := by
-    have : 0 ≤ frequencyNorm f := norm_nonneg _
-    exact lt_of_le_of_ne this (Ne.symm h_norm_zero)
+    exact (frequencyNorm_pos_iff f).2 hf
+
+  have h_norm_nonzero : frequencyNorm f ≠ 0 := ne_of_gt h_norm_pos
 
   let f_norm := frequencyNorm f
-  let f_normalized : Idx → ℝ := fun i => f i / f_norm
+  let f_normalized : Idx → ℝ := (1 / f_norm) • f
 
-  -- Normalized vector has unit norm
+  -- Normalize: (1/||f||) • f has norm 1
   have h_unit : frequencyNorm f_normalized = 1 := by
-    unfold frequencyNorm f_normalized f_norm
-    simp only [Pi.div_apply]
-    rw [norm_div, norm_norm]
-    simp [h_norm_pos.ne']
+    unfold f_normalized
+    have h_inv_mul : (1 / f_norm) * f_norm = 1 := by
+      field_simp [h_norm_nonzero]
+    calc
+      frequencyNorm ((1 / f_norm) • f)
+        = ‖(1 / f_norm) • f‖ := by rw [frequencyNorm_eq_norm]
+      _ = ‖1 / f_norm‖ * ‖f‖ := by rw [norm_smul]
+      _ = (1 / f_norm) * f_norm := by
+            rw [Real.norm_eq_abs, abs_of_pos (one_div_pos.mpr h_norm_pos)]
+            simp [f_norm, frequencyNorm_eq_norm]
+      _ = 1 := h_inv_mul
 
-  -- Apply minimum on unit sphere
-  have h_min_norm : ε ≤ anomalyStrength Γ g f_normalized :=
-    hε_min f_normalized h_unit
-
-  -- Relate back using homogeneity
+  -- f = f_norm • f_normalized
   have h_eq : f = f_norm • f_normalized := by
-    ext i
-    unfold f_normalized f_norm
-    field_simp
+    unfold f_normalized
+    rw [smul_smul]
+    have h_mul_inv : f_norm * (1 / f_norm) = 1 := by
+      simpa [one_div] using (mul_inv_cancel₀ h_norm_nonzero)
+    rw [h_mul_inv, one_smul]
 
-  -- Use homogeneity to get quadratic scaling
+  -- Quadratic homogeneity
   have h_homo : anomalyStrength Γ g f = (f_norm ^ 2) * anomalyStrength Γ g f_normalized := by
-    rw [h_eq]
-    exact anomaly_homogeneous_quadratic Γ g f_norm f_normalized
+    rw [h_eq, anomalyStrength_homogeneous_quadratic_local Γ g]
 
+  -- Combine
   calc ε * (frequencyNorm f) ^ 2
-      = ε * (f_norm ^ 2) := by rfl
+    = ε * (f_norm ^ 2) := by rfl
     _ ≤ anomalyStrength Γ g f_normalized * (f_norm ^ 2) := by
-        exact mul_le_mul_of_nonneg_right h_min_norm (sq_nonneg _)
+        apply mul_le_mul_of_nonneg_right (hε_min f_normalized h_unit) (sq_nonneg _)
     _ = anomalyStrength Γ g f := by rw [h_homo, mul_comm]
 
-/--
-CONSEQUENCE: Violations have minimum detectable cost.
--/
-theorem T7_No_Soft_Violations :
+/-- CONSEQUENCE: Violations have minimum detectable cost. -/
+theorem T7_No_Soft_Violations [FiniteDimensional ℝ (Idx → ℝ)] :
     (∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ 0 →
       c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f) →
     True := by

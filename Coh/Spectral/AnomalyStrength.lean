@@ -7,21 +7,24 @@ namespace Coh.Spectral
 
 open Coh.Core
 
-def anomalyStrength {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) : ℝ := ‖anomaly Γ g f‖
+variable {V : Type*} [CarrierSpace V]
+variable (Γ : GammaFamily V) (g : Metric)
 
-def mismatchMagnitude {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) : ℝ := ‖anomaly Γ g f‖
-lemma mismatchMagnitude_eq_anomalyStrength {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) : mismatchMagnitude Γ g f = anomalyStrength Γ g f := rfl
+def anomalyStrength (f : Idx → ℝ) : ℝ := ‖anomaly Γ g f‖
 
-def frequencySpectrum {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Set ℝ := { anomalyStrength Γ g f | f : Idx → ℝ }
+def mismatchMagnitude (f : Idx → ℝ) : ℝ := ‖anomaly Γ g f‖
+lemma mismatchMagnitude_eq_anomalyStrength (f : Idx → ℝ) : mismatchMagnitude Γ g f = anomalyStrength Γ g f := rfl
 
-lemma anomalyStrength_nonneg {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) : 0 ≤ anomalyStrength Γ g f := norm_nonneg _
+def frequencySpectrum : Set ℝ := { anomalyStrength Γ g f | f : Idx → ℝ }
 
-lemma anomalyStrength_homogeneous_quadratic {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) (c : ℝ) : anomalyStrength Γ g (c • f) = (c ^ 2) * anomalyStrength Γ g f := by unfold anomalyStrength; rw [anomaly_homogeneous_quadratic Γ g c f]
+lemma anomalyStrength_nonneg (f : Idx → ℝ) : 0 ≤ anomalyStrength Γ g f := norm_nonneg _
 
-lemma anomalyStrength_zero {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : anomalyStrength Γ g (fun _ => 0) = 0 := by unfold anomalyStrength anomaly; simp
+lemma anomalyStrength_homogeneous_quadratic (f : Idx → ℝ) (c : ℝ) : anomalyStrength Γ g (c • f) = (c ^ 2) * anomalyStrength Γ g f := by unfold anomalyStrength; rw [anomaly_homogeneous_quadratic Γ g c f]
+
+lemma anomalyStrength_zero : anomalyStrength Γ g (fun _ => 0) = 0 := by unfold anomalyStrength anomaly; simp
 
 -- OplaxSound is equivalent to vanishing anomalyStrength for all f
-lemma oplaxSound_equiv {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : OplaxSound Γ g ↔ ∀ f : Idx → ℝ, anomalyStrength Γ g f = 0 :=
+lemma oplaxSound_equiv : OplaxSound Γ g ↔ ∀ f : Idx → ℝ, anomalyStrength Γ g f = 0 :=
   by
     constructor
     · intro h f
@@ -36,23 +39,21 @@ lemma oplaxSound_equiv {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Me
       simp at hx
       simpa using hx
 
-def HasSpectralGap {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop := ∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
-def HasUniformSpectralGap {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop := ∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
-def HasAnomalyBound {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop := ∃ κ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → κ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
+def HasSpectralGap : Prop := ∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
+def HasUniformSpectralGap : Prop := ∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
+def HasAnomalyBound : Prop := ∃ κ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) → κ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f
+
 /-
 Minimum anomaly energy must be phrased on a normalization (e.g. unit frequency sphere),
 since `anomalyStrength` is homogeneous of degree 2 in `f`.
-
-This is the "no soft violations at unit scale" statement used by the compactness proof.
 -/
-def HasMinimumAnomalyEnergy {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop :=
+def HasMinimumAnomalyEnergy : Prop :=
   ∃ ε > 0, ∀ f : Idx → ℝ, frequencyNorm f = 1 → ε ≤ anomalyStrength Γ g f
 
-lemma uniformGap_implies_anomalyBound {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : HasUniformSpectralGap Γ g → HasAnomalyBound Γ g := fun ⟨c₀, hc₀, h⟩ => ⟨c₀, hc₀, h⟩
+lemma uniformGap_implies_anomalyBound : HasUniformSpectralGap Γ g → HasAnomalyBound Γ g := fun ⟨c₀, hc₀, h⟩ => ⟨c₀, hc₀, h⟩
 
 -- An anomaly bound immediately yields a positive lower bound on the unit frequency sphere.
-lemma anomalyBound_implies_minimumEnergy {V : Type*} [CarrierSpace V]
-    (Γ : GammaFamily V) (g : Metric) :
+lemma anomalyBound_implies_minimumEnergy :
     HasAnomalyBound Γ g → HasMinimumAnomalyEnergy Γ g := by
   rintro ⟨κ, hκ_pos, hbound⟩
   refine ⟨κ, hκ_pos, ?_⟩
@@ -66,7 +67,6 @@ lemma anomalyBound_implies_minimumEnergy {V : Type*} [CarrierSpace V]
       simpa [hnorm0] using hf_unit
     exact zero_ne_one this
   have hb := hbound f hf_ne
-  -- On the unit sphere, the bound reads `κ ≤ anomalyStrength Γ g f`.
   simpa [hf_unit] using hb
 
 end Coh.Spectral

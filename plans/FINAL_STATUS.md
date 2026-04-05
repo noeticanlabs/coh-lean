@@ -1,5 +1,9 @@
 # Final Status: Dirac Inevitability Schema - Phase 5-7 Complete (Code)
 
+> **Plan Status Class:** HISTORICAL SNAPSHOT  
+> **Completion Meaning:** “Final” here means final for the session/report that produced this file. It is not the authoritative final status of the whole project.  
+> **Current Source of Truth:** [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md) and [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
 **Date**: 2026-04-05  
 **Overall Progress**: 85% of code complete, structurally sound  
 **Status**: ✅ All theorems formalized, awaiting build system resolution

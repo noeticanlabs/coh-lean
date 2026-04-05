@@ -1,5 +1,9 @@
 # Execution Summary: Scaffold to Real Theorem
 
+> **Plan Status Class:** SUPERSEDED PLAN  
+> **Completion Meaning:** “Planning complete” in this file means planning was completed for that session, not that the project or theorem stack is complete.  
+> **Current Source of Truth:** [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md) and [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
 **Status:** ✅ Planning Complete. Ready for Code Mode Execution.
 
 ---

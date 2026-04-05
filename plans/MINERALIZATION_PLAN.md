@@ -1,5 +1,9 @@
 # Coh Lean: Scaffold to Real Theorem Plan
 
+> **Plan Status Class:** REFERENCE PLAN  
+> **Completion Meaning:** This document mixes completed historical phases with still-useful strategy. Treat “complete” here as phase-local, not project-global.  
+> **Current Source of Truth:** [`PLAN_STATUS_INDEX.md`](PLAN_STATUS_INDEX.md) and [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
 ## Executive Summary
 Transform the Coh safety kernel from a formal scaffold with `sorry`/`admit` placeholders into a complete, mechanized proof of Dirac Inevitability. The project has a solid foundation with logical composition layers fully described; **4 critical analytic bridges + 1 capstone integration** remain to be proved.
 

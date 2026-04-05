@@ -1,4 +1,4 @@
-import Coh.Prelude
+import Coh.Core.SpectralContext
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 
@@ -7,32 +7,31 @@ namespace Coh.Core
 open scoped BigOperators
 open Coh
 
-/-- A family of gamma operators indexed by spacetime indices. -/
-structure GammaFamily (V : Type*) [CarrierSpace V] where
-  Γ : Idx → V →L[ℝ] V
+variable {V : Type*} [CarrierSpace V]
+variable (Γ : GammaFamily V) (g : Metric)
 
 /-- Identity operator as a continuous linear map. -/
-def idOp (V : Type*) [CarrierSpace V] : V →L[ℝ] V :=
+def idOp : V →L[ℝ] V :=
   ContinuousLinearMap.id ℝ V
 
 /-- Anticommutator for bounded operators: {A, B} = AB + BA. -/
-def anticommutator {V : Type*} [CarrierSpace V] (A B : V →L[ℝ] V) : V →L[ℝ] V :=
+def anticommutator (A B : V →L[ℝ] V) : V →L[ℝ] V :=
   A.comp B + B.comp A
 
 /-- The Clifford property: {Γ_μ, Γ_ν} = 2 g_μν I. -/
-def IsClifford {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop :=
-  ∀ μ ν : Idx, anticommutator (Γ.Γ μ) (Γ.Γ ν) = (2 * g.g μ ν) • idOp V
+def IsClifford : Prop :=
+  ∀ μ ν : Idx, anticommutator (Γ.Γ μ) (Γ.Γ ν) = (2 * g.g μ ν) • idOp
 
 /-- Operator mismatch at index pair (μ, ν): the failure of Clifford at that pair. -/
-def cliffordMismatchAt {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (μ ν : Idx) : V →L[ℝ] V :=
-  anticommutator (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp V
+def cliffordMismatchAt (μ ν : Idx) : V →L[ℝ] V :=
+  anticommutator (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp
 
 /-- A specific index pair is a mismatch witness if the Clifford relation fails there. -/
-def IsMismatchWitness {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (μ ν : Idx) : Prop :=
+def IsMismatchWitness (μ ν : Idx) : Prop :=
   cliffordMismatchAt Γ g μ ν ≠ 0
 
 /-- Existential: there exists some mismatch witness. -/
-def HasMismatchWitness {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop :=
+def HasMismatchWitness : Prop :=
   ∃ μ ν : Idx, IsMismatchWitness Γ g μ ν
 
 /-- Frequency norm (Euclidean). -/
@@ -40,18 +39,16 @@ def frequencyNorm (f : Idx → ℝ) : ℝ :=
   ‖f‖
 
 /-- Measurement anomaly at a frequency profile. -/
-def anomaly {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) (f : Idx → ℝ) : V →L[ℝ] V :=
+def anomaly (f : Idx → ℝ) : V →L[ℝ] V :=
   ∑ μ : Idx, ∑ ν : Idx,
-    (f μ * f ν) • (anticommutator (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp V)
+    (f μ * f ν) • (anticommutator (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp)
 
 /-- Oplax soundness: the anomaly vanishes for all frequency profiles. -/
-def OplaxSound {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) (g : Metric) : Prop :=
+def OplaxSound : Prop :=
   ∀ f : Idx → ℝ, anomaly Γ g f = 0
 
 /-- Theorem: Clifford implies Oplax Sound. -/
 theorem oplaxSound_of_clifford
-    {V : Type*} [CarrierSpace V]
-    (Γ : GammaFamily V) (g : Metric)
     (hCl : IsClifford Γ g) :
     OplaxSound Γ g := by
   intro f
@@ -80,8 +77,7 @@ contributes c² to every summand.
 
 This is the key structural property enabling the quadratic spectral gap.
 -/
-lemma anomaly_smul_left {V : Type*} [CarrierSpace V]
-    (Γ : GammaFamily V) (g : Metric) (c : ℝ) (f : Idx → ℝ) :
+lemma anomaly_smul_left (c : ℝ) (f : Idx → ℝ) :
     anomaly Γ g (c • f) = (c ^ 2) • anomaly Γ g f := by
   unfold anomaly
   simp only [Pi.smul_apply]
@@ -111,8 +107,7 @@ The strength (norm) of the anomaly scales quadratically with scalar multiple:
 
 This follows from the scalar multiplication homogeneity of the norm.
 -/
-lemma anomaly_homogeneous_quadratic {V : Type*} [CarrierSpace V]
-    (Γ : GammaFamily V) (g : Metric) (c : ℝ) (f : Idx → ℝ) :
+lemma anomaly_homogeneous_quadratic (c : ℝ) (f : Idx → ℝ) :
     ‖anomaly Γ g (c • f)‖ = (c ^ 2) * ‖anomaly Γ g f‖ := by
   rw [anomaly_smul_left Γ g c f]
   have h := norm_smul (c^2) (anomaly Γ g f)
