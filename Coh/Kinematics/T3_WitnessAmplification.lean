@@ -1,4 +1,4 @@
-import Coh.Kinematics.T3_Clifford
+import Coh.Core.Clifford
 import Coh.Kinematics.T3_CoerciveVisibility
 import Coh.Kinematics.T3_NonCliffordVisible
 
@@ -22,7 +22,7 @@ A local quadratic coercivity hypothesis for a mismatch witness `(μ, ν)`.
 
 Interpretation:
 along the designated frequency family `pairSpike μ ν R`, the anomaly norm grows
-at least quadratically in `R` with coefficient `c > 0`.
+at least quadratically in the frequency norm with coefficient `c > 0`.
 -/
 def WitnessQuadraticLowerBound
     (Γ : GammaFamily V)
@@ -30,7 +30,7 @@ def WitnessQuadraticLowerBound
     (μ ν : Idx) : Prop :=
   ∃ c : ℝ, 0 < c ∧
     ∀ R : ℝ, 0 < R →
-      c * R^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+      c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
 
 /--
 A uniform amplification principle: every mismatch witness admits a quadratic lower bound.

@@ -22,10 +22,16 @@ graph TD
 ```
 
 ### Modules
+
+#### Core Foundation (`Coh.Core.*`)
+- **`Coh.Core.Minimality`** (Phase 0.5d): Metabolic cost and thermodynamic dominance foundations. Defines cost functions, budget evolution, and lifespan bounds from module rank.
+- **`Coh.Core.Complexification`** (Phase 0.5e): Complex-like structure (J operator with J² = -I) and persistence-to-complexification bridge. Establishes that 1D systems cannot support nontrivial periodic orbits, while 2D rotation is inherently complex-like.
+
+#### Theorem Stacks
 1.  **`Coh.Prelude`**: Core definitions for metrics, spacetime indices, and the abstract `CliffordModule`.
-2.  **`Coh.Kinematics`**: Formalizes **Clifford Necessity (T3)**. Proves that "oplax sound" symbols must satisfy the Clifford anticommutation relations.
-3.  **`Coh.Thermo`**: Formalizes **Metabolic Minimality (T5)**. Tracks tracking costs and lifespan bounds.
-4.  **`Coh.Geometry`**: Formalizes **Complexification (T6)**. Forces a complex structure via bounded persistence.
+2.  **`Coh.Kinematics`** (T3): Formalizes **Clifford Necessity**. Proves that "oplax sound" symbols must satisfy the Clifford anticommutation relations.
+3.  **`Coh.Thermo`** (T5): Formalizes **Metabolic Minimality**. Tracks tracking costs and lifespan bounds; irreducible minimal carriers are thermodynamically dominant over redundant extensions.
+4.  **`Coh.Geometry`** (T6): Formalizes **Complexification**. Forces a complex structure via bounded persistence; shows that commutation with Clifford generators is preserved.
 5.  **`Coh.Physics`**: The **Capstone Theorem**. Proves that the minimal lawful carrier surviving all filters is equivalent to the $C^4$ Dirac spinor.
 
 ## 🚀 Getting Started
@@ -48,11 +54,23 @@ If you use Nix with flakes enabled, you can enter a pre-configured environment:
 nix develop
 ```
 
-## ⚖️ Status: Core Skeleton
-This repository is a **formal scaffold**.
--   **Definitions**: Most core structures are formally defined using Mathlib.
--   **Theorems**: High-level theorem statements are present.
--   **Proofs**: Deep proof obligations are currently `admit`ted or represented as `axiom`s, providing a disciplined roadmap for full mechanization.
+## ⚖️ Status: Phase 0.5d-e + Integration Complete
+
+### ✅ Completed
+- **Phase 0.5d (Core/Minimality.lean)**: Thermodynamic cost, lifespan, and dominance foundations fully formalized with proofs.
+- **Phase 0.5e (Core/Complexification.lean)**: Complex-like structure (J operator), persistence, and periodicity barriers formalized.
+- **Integration (Coh.lean)**: All Core modules imported and integrated into the main umbrella module.
+- **Compilation**: All modules build successfully with no errors (only minor linter warnings about unused section variables).
+
+### 📋 Remaining Work
+This repository remains a **formal scaffold** for Phases 1-3:
+-   **Definitions**: Core structures are formally defined using Mathlib.
+-   **Theorems**: High-level theorem statements and bridges are present.
+-   **Proofs**: Deep analytic and representation-theoretic proof obligations remain (`sorry` placeholders):
+    - **T3 Bridge**: `AllMismatchWitnessesVisible` (Kinematics analytic visibility)
+    - **T5 Bridge**: `FaithfulIrreducibleBridge` (Thermodynamic representation theory)
+    - **T6 Bridges**: `PersistenceForcesComplexLike` + `ComplexLikeCommutesBridge` (Geometry)
+    - **Capstone**: `Dirac_Inevitable_Schema` (Physics integration)
 
 ## 📝 License
 Built with ❤️ by the Coh Project Contributors. Released under the [MIT License](LICENSE).

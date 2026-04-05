@@ -74,6 +74,25 @@ lemma J2_apply_sq (v : ℝ × ℝ) :
   apply Prod.ext <;> simp
 
 /--
+Linear version of `J2_apply`.
+-/
+def J2_linear : (ℝ × ℝ) →ₗ[ℝ] ℝ × ℝ :=
+  { toFun := J2_apply
+    map_add' := by
+      intro v w
+      apply Prod.ext <;> simp [J2_apply, add_comm, add_left_comm, add_assoc]
+    map_smul' := by
+      intro a v
+      apply Prod.ext <;> simp [J2_apply, mul_comm, mul_left_comm, mul_assoc] }
+
+/--
+Continuous linear map corresponding to the quarter-turn `J2_apply`.
+-/
+def J2_CLM : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ) :=
+  { toLinearMap := J2_linear
+    cont := (continuous_snd.neg).prod_mk continuous_fst }
+
+/--
 A witness for a complex-like structure (J² = -I).
 -/
 structure ComplexLike (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] where
@@ -90,8 +109,10 @@ def HasComplexLikeStructure (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ 
 Canonical complex-like structure on ℝ².
 -/
 def R2_ComplexLike : ComplexLike (ℝ × ℝ) :=
-  { J := sorry -- Construction via J2_apply and ContinuousLinearMap.id
-    hSq := sorry }
+  { J := J2_CLM
+    hSq := by
+      ext v <;>
+        simp [J2_CLM, J2_linear, J2_apply, J2_apply_sq] }
 
 /--
 The canonical real 2D carrier already has the complex-like structure J.

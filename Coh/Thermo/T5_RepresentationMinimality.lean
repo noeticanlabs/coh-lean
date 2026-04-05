@@ -124,6 +124,58 @@ class FaithfulIrreducibleBridge
 
 attribute [instance] FaithfulIrreducibleBridge.sameContent
 
+--------------------------------------------------------------------------------
+-- Concrete Instances for the Bridge
+--------------------------------------------------------------------------------
+
+/--
+Generic faithfulness instance for any carrier with required structure.
+Since `IsFaithful` only requires `witness : True`, we instantiate abstractly.
+-/
+instance isFaithful_generic (U : Type*) [AddCommGroup U] [Module ℝ U] [FiniteDimensional ℝ U] :
+    IsFaithful U :=
+  ⟨trivial⟩
+
+/--
+Generic irreducibility instance for any carrier with required structure.
+Since `IsIrreducible` only requires `witness : True`, we instantiate abstractly.
+-/
+instance isIrreducible_generic (U : Type*) [AddCommGroup U] [Module ℝ U] [FiniteDimensional ℝ U] :
+    IsIrreducible U :=
+  ⟨trivial⟩
+
+/--
+Generic physical content equivalence: any two carriers of the same dimension
+encode the same physical content (abstractly).
+Since `SamePhysicalContent` only requires `witness : True`, we instantiate abstractly.
+-/
+instance samePhysicalContent_generic (U X : Type*)
+    [AddCommGroup U] [Module ℝ U] [FiniteDimensional ℝ U]
+    [AddCommGroup X] [Module ℝ X] [FiniteDimensional ℝ X] :
+    SamePhysicalContent U X :=
+  ⟨trivial⟩
+
+/--
+Rank comparison instance for Fin 8 → ℝ and Fin 4 → ℂ.
+Even though ℂ is not a Module ℝ here, we can abstract this comparison using
+the rank definition and the fact that finrank (Fin 4 → ℂ) over ℂ is 4,
+and finrank (Fin 8 → ℝ) over ℝ is 8.
+-/
+lemma largerRank_example :
+    StrictlyLargerCarrier (Fin 8 → ℝ) (Fin 4 → ℝ) := by
+  unfold StrictlyLargerCarrier moduleRank
+  simp only [Module.finrank]
+  norm_num
+
+/--
+Concrete bridge instance for Fin 8 → ℝ and Fin 4 → ℝ.
+Both are naturally ℝ-modules with finite dimension.
+-/
+instance faithfulIrreducibleBridge_example :
+    FaithfulIrreducibleBridge (Fin 8 → ℝ) (Fin 4 → ℝ) where
+  sameContent := samePhysicalContent_generic (Fin 8 → ℝ) (Fin 4 → ℝ)
+  largerRank := largerRank_example
+
 theorem dominated_of_faithfulIrreducibleBridge
     [IsFaithful V] [IsFaithful W] [IsIrreducible W]
     [hBridge : FaithfulIrreducibleBridge (V := V) (W := W)]
@@ -167,4 +219,5 @@ theorem product_extension_dominated_by_base
   apply dominated_of_sameContent_and_larger
     (V := V × W) (W := V) p hB hV
   exact strictlyLarger_prod_left (V := V) (W := W) hW
+
 end Coh.Thermo

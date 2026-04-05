@@ -1,4 +1,4 @@
-import Coh.Kinematics.T3_Clifford
+import Coh.Core.Clifford
 import Coh.Kinematics.T3_Necessity
 import Coh.Thermo.T5_RepresentationMinimality
 import Coh.Geometry.T6_Complexification
@@ -12,7 +12,7 @@ noncomputable section
 
 namespace Coh.Physics
 
-open Coh.Kinematics
+open Coh.Core
 open Coh.Thermo
 open Coh.Geometry
 

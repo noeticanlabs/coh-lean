@@ -1,4 +1,4 @@
-import Coh.Kinematics.T3_Clifford
+import Coh.Core.Clifford
 import Coh.Kinematics.T3_CoerciveVisibility
 
 noncomputable section

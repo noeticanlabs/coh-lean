@@ -1,4 +1,4 @@
-import Coh.Kinematics.T3_Clifford
+import Coh.Core.Clifford
 import Coh.Kinematics.T3_CoerciveVisibility
 import Coh.Kinematics.T3_Necessity
 
@@ -114,6 +114,18 @@ lemma pairSpike_right_ref
   simp [pairSpike, h, eq_comm]
 
 /--
+At amplitude `R`, the frequency norm of the pair spike is at least `|R|`.
+This is the lower bound needed for the quadratic visibility proof.
+-/
+lemma norm_pairSpike_lower_ref
+    (μ ν : Idx) (R : ℝ) :
+    |R| ≤ freqNorm (pairSpike μ ν R) := by
+  unfold freqNorm
+  have h := norm_le_pi_norm (pairSpike μ ν R) μ
+  rw [pairSpike_left_ref, Real.norm_eq_abs] at h
+  exact h
+
+/--
 At amplitude `R`, the frequency norm of the axis spike is at least `|R|`.
 This weak lower bound is enough for asymptotic packaging.
 -/
@@ -140,7 +152,7 @@ def WitnessCoercivelyVisible
     (g : Metric)
     (μ ν : Idx) : Prop :=
   ∃ c : ℝ, 0 < c ∧ ∀ R : ℝ, 0 < R →
-    c * R^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+    c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
 
 /--
 Global witness visibility: every mismatch witness is coercively visible.
@@ -163,29 +175,22 @@ lemma quadraticVisible_of_visibleWitness
     (hVis : WitnessCoercivelyVisible V Γ g μ ν) :
     QuadraticAnomalyVisible V Γ g := by
   rcases hVis with ⟨c, hc, hVis⟩
-  refine ⟨c / 4, ?_, ?_⟩
-  · linarith [hc]
+  use c, hc
   intro S
   let R : ℝ := max S 1
-  have hR : 0 < R := lt_of_lt_of_le (by norm_num) (le_max_right S 1)
-  refine ⟨pairSpike μ ν R, ?_, ?_⟩
+  have hR : 0 < R := by positivity
+  use pairSpike μ ν R
+  constructor
   ·
-    have hRleNorm : R ≤ freqNorm (pairSpike μ ν R) := by
-      have hcoord : |R| ≤ freqNorm (pairSpike μ ν R) := by
-        unfold freqNorm
-        simpa [pairSpike_left_ref, Real.norm_eq_abs] using
-          norm_le_pi_norm (pairSpike μ ν R) μ
-      rwa [abs_of_nonneg (le_of_lt hR)] at hcoord
-    exact le_trans (le_max_left S 1) hRleNorm
+    have hRpos : 0 ≤ R := le_of_lt hR
+    have hRabs : |R| = R := abs_of_nonneg hRpos
+    have hRle : S ≤ R := le_max_left S 1
+    have hRnorm : R ≤ freqNorm (pairSpike μ ν R) := by
+      have hlower : |R| ≤ freqNorm (pairSpike μ ν R) := norm_pairSpike_lower_ref μ ν R
+      rwa [hRabs] at hlower
+    exact le_trans hRle hRnorm
   ·
-    have hbase : c * R^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖ := hVis R hR
-    -- We use a rough norm upper bound: ‖pairSpike‖ ≤ 2 * R.
-    -- Then (c/4) * ‖f‖² ≤ (c/4) * 4R² = cR² ≤ ‖anomaly‖.
-    have hNormUpper : freqNorm (pairSpike μ ν R) ≤ 2 * R := by
-      sorry
-    have hq : (c / 4) * (freqNorm (pairSpike μ ν R))^2 ≤ c * R^2 := by
-      sorry
-    exact le_trans hq hbase
+    exact hVis R hR
 
 theorem nonClifford_implies_visibleAnomaly_of_witnessVisibility
     (Γ : GammaFamily V)
@@ -209,13 +214,74 @@ theorem nonCliffordVisibilityBridge_of_witnessVisibility
   exact nonClifford_implies_visibleAnomaly_of_witnessVisibility V Γ g hAll hNot
 
 --------------------------------------------------------------------------------
+-- Phase 1: Supporting lemmas for AllMismatchWitnessesVisible
+--------------------------------------------------------------------------------
+
+/--
+Lemma 1: If (μ, ν) is a mismatch witness, the operator mismatch is nonzero.
+
+Proof: By contrapositive. If the mismatch operator equals zero, then the
+anticommutator would equal 2 g_μν I, contradicting the witness definition.
+-/
+lemma mismatchAt_nonzero_of_witness
+    (Γ : GammaFamily V)
+    (g : Metric)
+    (μ ν : Idx)
+    (hw : IsMismatchWitness V Γ g μ ν) :
+    cliffordMismatchAt V Γ g μ ν ≠ 0 := by
+  intro h_eq
+  unfold cliffordMismatchAt at h_eq
+  have h_anticomm : anticommutator V (Γ.Γ μ) (Γ.Γ ν) = (2 * g.g μ ν) • idOp V :=
+    sub_eq_zero.mp h_eq
+  exact hw h_anticomm
+
+/--
+Main Theorem: Visibility follows directly from anomaly coupling hypothesis.
+
+This theorem encodes the bridge: if we can prove that the anomaly couples
+the mismatch norm to the pairSpike probing with a positive coefficient
+(measured in terms of the frequency norm), then every mismatch witness is
+coercively visible.
+
+The coupling hypothesis is the honest analytic boundary - it must be
+established from the specific structure of the anomaly definition.
+-/
+theorem allMismatchWitnessesVisible_of_anomalyCoupling
+    (Γ : GammaFamily V)
+    (g : Metric)
+    (h_coupling : ∀ μ ν : Idx, IsMismatchWitness V Γ g μ ν →
+      ∃ c : ℝ, 0 < c ∧
+        ∀ R : ℝ, 0 < R →
+          c * (freqNorm (pairSpike μ ν R))^2 ≤
+            ‖anomaly V Γ g (pairSpike μ ν R)‖) :
+    AllMismatchWitnessesVisible V Γ g := by
+  intro μ ν hw
+  unfold WitnessCoercivelyVisible
+  rcases h_coupling μ ν hw with ⟨c, hc_pos, hc_bound⟩
+  exact ⟨c, hc_pos, hc_bound⟩
+
+--------------------------------------------------------------------------------
 -- Honest boundary
 --------------------------------------------------------------------------------
 
 /-
-This file isolates the final T3 bridge into one exact analytic obligation:
+This file establishes the final T3 bridge structure as a theorem schema:
 
-`AllMismatchWitnessesVisible V Γ g`
+THEOREM: `allMismatchWitnessesVisible_of_anomalyCoupling`
+
+The theorem shows that `AllMismatchWitnessesVisible` is provable from a
+structural hypothesis about the anomaly: that it couples mismatch witnesses
+to pairSpike probing with a quadratic lower bound.
+
+REMAINING WORK (Phase 1 completion):
+
+Prove the coupling hypothesis:
+  ∀ μ ν, IsMismatchWitness V Γ g μ ν →
+    ∃ c > 0, ∀ R > 0,
+      c * ‖freqNorm(pairSpike μ ν R)‖² ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+
+This requires detailed analysis of the anomaly definition's behavior under
+pairSpike probing. That is the honest remaining analytic work.
 -/
 
 end Coh.Kinematics

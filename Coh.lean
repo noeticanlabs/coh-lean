@@ -1,5 +1,8 @@
 import Coh.Prelude
-import Coh.Kinematics.T3_Clifford
+import Coh.Core.Clifford
+import Coh.Core.Oplax
+import Coh.Core.Minimality
+import Coh.Core.Complexification
 import Coh.Kinematics.T3_CoerciveVisibility
 import Coh.Kinematics.T3_Necessity
 import Coh.Kinematics.T3_NonCliffordVisible
@@ -9,6 +12,13 @@ import Coh.Thermo.T5_RepresentationMinimality
 import Coh.Geometry.T6_Complexification
 import Coh.Geometry.T6_PersistenceForcesRotation
 import Coh.Geometry.T6_CommutesWithClifford
+import Coh.Spectral.AnomalyStrength
+import Coh.Spectral.VisibilityGap
+import Coh.Spectral.CompactnessProof
+import Coh.Spectral.DefectAccumulation
+import Coh.Spectral.T8_StabilityMinimality
+import Coh.Spectral.T9_GaugeEmergence
+import Coh.Spectral.T10_DiracDynamics
 import Coh.Physics.DiracInevitable
 
 /-!

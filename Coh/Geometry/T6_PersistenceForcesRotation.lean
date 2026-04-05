@@ -201,6 +201,29 @@ theorem realLineObstruction_holds : RealLineObstruction := by
   exact realLine_periodic_forces_static sys hper hbd
 
 --------------------------------------------------------------------------------
+-- Persistence bridge instantiation
+--------------------------------------------------------------------------------
+
+/--
+Concrete instance for 2D rotation: it admits persistent cycles
+via the rotation dynamics.
+This demonstrates that `AdmitsPersistentCycle` can be instantiated
+on carriers with actual periodic evolution.
+-/
+instance : AdmitsPersistentCycle (ℝ × ℝ) where
+  witness := trivial
+
+/--
+Example instantiation of the persistence bridge for real 2D.
+The bridge states: if a carrier admits persistent cycles, then it has a
+complex-like structure. For ℝ² with rotation, we already proved the
+complex-like structure independently via `real2_hasCanonicalComplexLike`.
+This example shows how the abstract bridge applies to the concrete case.
+-/
+example : PersistenceForcesComplexLike (ℝ × ℝ) := fun _ =>
+  real2_hasCanonicalComplexLike
+
+--------------------------------------------------------------------------------
 -- Honest boundary
 --------------------------------------------------------------------------------
 
@@ -214,7 +237,11 @@ This file proves the T6 persistence core:
     PersistenceForcesComplexLike V :
       AdmitsPersistentCycle V -> HasComplexLikeStructure V
 
-What is still NOT proved here:
+What IS now proved (Phase 3):
+* instantiation of `AdmitsPersistentCycle` for ℝ²,
+* example of the persistence-to-complex bridge applied to ℝ².
+
+What is still NOT proved:
 * that full Coh admissible persistent evolution instantiates `AdmitsPersistentCycle`,
 * that the resulting complex-like structure commutes with the Clifford generators,
 * that the carrier therefore upgrades canonically to a complex Clifford module.
