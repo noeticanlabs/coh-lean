@@ -1,5 +1,7 @@
 # Coh Lean Formalization
 
+Build Status " Work in progress " 
+
 [![Build Status](https://github.com/your-username/coh-lean/actions/workflows/build.yml/badge.svg)](https://github.com/your-username/coh-lean/actions)
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://leanprover.github.io/)
 
