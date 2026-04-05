@@ -30,9 +30,7 @@ def CommutesWithGammaFamily
 A complex-like structure is Clifford-compatible if its distinguished `J`
 commutes with the entire gamma family.
 -/
-def CliffordCompatibleComplexLike
-    (Γ : GammaFamily V) : Prop :=
-  ∃ C : ComplexLike V, CommutesWithGammaFamily J C.J Γ
+  ∃ C : ComplexLike V, CommutesWithGammaFamily C.J Γ
 
 /--
 A stronger packaged version that keeps the witness data explicit.

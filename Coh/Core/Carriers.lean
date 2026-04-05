@@ -44,4 +44,10 @@ lemma dim_preserved_under_equivalence
   -- This would be proved by Mathlib's finrank_eq_finrank_of_linearEquiv
   sorry
 
+/-- The real line as a carrier space. -/
+instance : CarrierSpace ℝ := { }
+
+/-- The real plane as a carrier space. -/
+instance : CarrierSpace (ℝ × ℝ) := { }
+
 end Coh.Core

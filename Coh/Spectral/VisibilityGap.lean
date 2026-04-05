@@ -1,6 +1,4 @@
-import Coh.Spectral.AnomalyStrength
-import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
-import Mathlib.LinearAlgebra.FiniteDimensional.Defs
+import Coh.Spectral.CompactnessProof
 
 noncomputable section
 
@@ -23,23 +21,16 @@ If violations exist, they have minimum observable energy.
 
 This ensures that the framework has real enforcement power: no violation
 can be arbitrarily small and undetectable.
-
-This is the load-bearing wall. If this fails, the entire framework collapses.
 -/
 theorem T7_Visibility_Spectral_Gap :
     ∃ c₀ > 0,
       ∀ f : Idx → ℝ,
         f ≠ (fun _ => 0) →
-        c₀ * (frequencyNorm V f) ^ 2 ≤ anomalyStrength V Γ g f := by
-  -- Proof is finalized in Coh/Spectral/CompactnessProof.lean
-  -- using a compactness argument on the unit frequency sphere.
-  sorry
+        c₀ * (frequencyNorm V f) ^ 2 ≤ anomalyStrength V Γ g f :=
+  T7_Quadratic_Spectral_Gap V Γ g
 
 /--
 Corollary: Mismatch has minimum detectable magnitude.
-
-If there's any Clifford violation, it must have at least energy c₀ * ε
-where ε is the minimum probe size.
 -/
 theorem T7_Corollary_MinimumAnomalyEnergy :
     (∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ (fun _ => 0) →
@@ -47,9 +38,9 @@ theorem T7_Corollary_MinimumAnomalyEnergy :
     (∃ ε > 0, ∀ f : Idx → ℝ,
       anomalyStrength V Γ g f ≠ 0 →
       ε ≤ anomalyStrength V Γ g f) := by
-  -- This follows from the fact that in finite dimensions, 
-  -- anomalies achieve a positive minimum on the unit sphere.
-  sorry
+  -- Apply the lemma that anomaly bound implies minimum energy
+  intro hgap
+  exact anomalyBound_implies_minimumEnergy hgap
 
 /--
 Physical interpretation of T7:

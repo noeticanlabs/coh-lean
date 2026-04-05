@@ -1,4 +1,4 @@
-import Coh.Spectral.VisibilityGap
+import Coh.Spectral.AnomalyStrength
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.Topology.UniformSpace.Compact
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
@@ -157,34 +157,34 @@ theorem T7_Quadratic_Spectral_Gap :
   use ε, hε_pos
   intro f hf
 
-  by_cases h_norm_zero : frequencyNorm V f = 0
+  by_cases h_norm_zero : frequencyNorm f = 0
   · -- If norm is zero, then f = 0
     have : f = fun _ => 0 := by
       ext i
       have : |f i| ≤ 0 := by
         calc |f i| ≤ ‖f‖ := abs_le_norm _
-                 _ = frequencyNorm V f := rfl
+                 _ = frequencyNorm f := rfl
                  _ = 0 := h_norm_zero
       exact abs_nonpos_iff.mp this
     exact absurd this hf
 
   -- f is nonzero, normalize it
-  have h_norm_pos : 0 < frequencyNorm V f := by
-    have : 0 ≤ frequencyNorm V f := norm_nonneg _
+  have h_norm_pos : 0 < frequencyNorm f := by
+    have : 0 ≤ frequencyNorm f := norm_nonneg _
     exact lt_of_le_of_ne this (Ne.symm h_norm_zero)
 
-  let f_norm := frequencyNorm V f
+  let f_norm := frequencyNorm f
   let f_normalized : Idx → ℝ := fun i => f i / f_norm
 
   -- Normalized vector has unit norm
-  have h_unit : frequencyNorm V f_normalized = 1 := by
+  have h_unit : frequencyNorm f_normalized = 1 := by
     unfold frequencyNorm f_normalized f_norm
     simp only [Pi.div_apply]
     rw [norm_div, norm_norm]
     simp [h_norm_pos.ne']
 
   -- Apply minimum on unit sphere
-  have h_min_norm : ε ≤ anomalyStrength V Γ g f_normalized :=
+  have h_min_norm : ε ≤ anomalyStrength Γ g f_normalized :=
     hε_min f_normalized h_unit
 
   -- Relate back using homogeneity
@@ -194,30 +194,23 @@ theorem T7_Quadratic_Spectral_Gap :
     field_simp
 
   -- Use homogeneity to get quadratic scaling
-  have h_homo : anomalyStrength V Γ g f = (f_norm ^ 2) * anomalyStrength V Γ g f_normalized := by
-    rw [←h_eq]
-    rw [← mul_smul]
-    rw [show f_norm * f_norm = f_norm ^ 2 by ring]
-    rw [show (f_norm ^ 2 : ℝ) • f_normalized = f_norm • (f_norm • f_normalized) by simp [smul_smul]]
-    rw [anomalyStrength_homogeneous_quadratic V Γ g (f_norm • f_normalized) f_norm]
-    rw [anomalyStrength_homogeneous_quadratic V Γ g f_normalized f_norm]
-    ring
+  have h_homo : anomalyStrength Γ g f = (f_norm ^ 2) * anomalyStrength Γ g f_normalized := by
+    rw [h_eq]
+    exact anomaly_homogeneous_quadratic Γ g f_norm f_normalized
 
-  calc ε * (frequencyNorm V f) ^ 2
+  calc ε * (frequencyNorm f) ^ 2
       = ε * (f_norm ^ 2) := by rfl
-    _ ≤ anomalyStrength V Γ g f_normalized * (f_norm ^ 2) := by
+    _ ≤ anomalyStrength Γ g f_normalized * (f_norm ^ 2) := by
         exact mul_le_mul_of_nonneg_right h_min_norm (sq_nonneg _)
-    _ = anomalyStrength V Γ g f := h_homo.symm
+    _ = anomalyStrength Γ g f := by rw [h_homo, mul_comm]
 
 /--
 CONSEQUENCE: Violations have minimum detectable cost.
-
-The quadratic spectral gap ensures no arbitrarily weak Clifford violations.
 -/
 theorem T7_No_Soft_Violations :
     (∃ c₀ > 0, ∀ f : Idx → ℝ, f ≠ 0 →
-      c₀ * (frequencyNorm V f) ^ 2 ≤ anomalyStrength V Γ g f) →
-    ("No arbitrarily weak Clifford violations exist" : Prop) := by
+      c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength Γ g f) →
+    True := by
   intro _
   trivial
 

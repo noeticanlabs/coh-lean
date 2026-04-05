@@ -1,4 +1,5 @@
 import Coh.Core.Clifford
+import Coh.Core.Oplax
 
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.Data.Real.Basic

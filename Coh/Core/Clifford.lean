@@ -83,8 +83,25 @@ This is the key structural property enabling the quadratic spectral gap.
 lemma anomaly_smul_left {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V) (g : Metric) (c : ℝ) (f : Idx → ℝ) :
     anomaly Γ g (c • f) = (c ^ 2) • anomaly Γ g f := by
-  -- Use sorry to unblock the build
-  sorry
+  unfold anomaly
+  simp only [Pi.smul_apply]
+  calc
+    (∑ μ : Idx, ∑ ν : Idx, (c * f μ * (c * f ν)) • cliffordMismatchAt Γ g μ ν)
+      = ∑ μ : Idx, ∑ ν : Idx, (c ^ 2 * (f μ * f ν)) • cliffordMismatchAt Γ g μ ν := by
+      apply Finset.sum_congr rfl
+      intro μ _
+      apply Finset.sum_congr rfl
+      intro ν _
+      congr 1
+      ring
+    _ = (c ^ 2) • (∑ μ : Idx, ∑ ν : Idx, (f μ * f ν) • cliffordMismatchAt Γ g μ ν) := by
+      rw [Finset.smul_sum]
+      apply Finset.sum_congr rfl
+      intro μ _
+      rw [Finset.smul_sum]
+      apply Finset.sum_congr rfl
+      intro ν _
+      rw [mul_smul]
 
 /--
 Anomaly strength homogeneity: quadratic scaling.
@@ -97,8 +114,9 @@ This follows from the scalar multiplication homogeneity of the norm.
 lemma anomaly_homogeneous_quadratic {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V) (g : Metric) (c : ℝ) (f : Idx → ℝ) :
     ‖anomaly Γ g (c • f)‖ = (c ^ 2) * ‖anomaly Γ g f‖ := by
-  -- The proof uses anomaly_smul_left and norm_smul
-  -- For now use sorry to unblock the build
-  sorry
+  rw [anomaly_smul_left Γ g c f]
+  have h := norm_smul (c^2) (anomaly Γ g f)
+  rw [h]
+  rw [Real.norm_of_nonneg (sq_nonneg c)]
 
 end Coh.Core
