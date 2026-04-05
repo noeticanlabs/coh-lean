@@ -1,9 +1,7 @@
-limport Coh.Spectral.VisibilityGap
+import Coh.Spectral.VisibilityGap
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.Topology.UniformSpace.Compact
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
-import Mathlib.Topology.MetricSpace.PiNNLp
-import Mathlib.Analysis.NormedSpace.Pi
 
 noncomputable section
 
@@ -95,8 +93,13 @@ lemma anomalyStrength_positive_min_on_sphere :
 
   -- Compact nonempty sets attain their minimum
   have ⟨a, ha_mem, ha_min⟩ : ∃ a ∈ A '' S, ∀ x ∈ A '' S, a ≤ x := by
-    have := h_image_compact.sSup_mem h_nonempty_image h_image_compact.bddAbove
-    exact this
+    have h_closed : IsClosed (A '' S) := h_image_compact.isClosed
+    have h_bdd : BddBelow (A '' S) := by
+      use 0
+      intro x ⟨f, _, rfl⟩
+      exact anomalyStrength_nonneg V Γ g f
+    have := h_image_compact.isInf_mem h_nonempty_image h_bdd
+    exact ⟨sInf (A '' S), this, fun x hx => csInf_le h_bdd hx⟩
 
   -- The minimum is positive (from Clifford rigidity)
   have h_pos : 0 < a := by

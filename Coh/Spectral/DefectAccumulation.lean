@@ -1,9 +1,6 @@
 import Coh.Spectral.CompactnessProof
-import Mathlib.Analysis.Calculus.Integral.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
-import Mathlib.MeasureTheory.Integral.SetIntegral
 import Mathlib.MeasureTheory.Measure.Typeclasses
-import Mathlib.Topology.Algebra.ContinuousMonoid
 
 noncomputable section
 
@@ -51,7 +48,7 @@ theorem defectAccumulation_lower_bound
   obtain ⟨c₀, hc₀_pos, hc₀_gap⟩ := T7_Quadratic_Spectral_Gap Γ g
   use c₀, hc₀_pos
   unfold defectAccumulation
-  
+
   have h_int_anomaly : IntegrableOn (fun t => anomalyStrength Γ g (γ t)) (Set.Icc a b) := by
     apply ContinuousOn.integrableOn_Icc
     apply (anomalyStrength_continuous Γ g).comp_continuousOn hadm.1
@@ -63,7 +60,7 @@ theorem defectAccumulation_lower_bound
 
   rw [← set_integral_mul_left]
   apply set_integral_mono_ae (h_int_norm_sq.mul_left c₀) h_int_anomaly
-  
+
   filter_upwards [ae_restrict_mem_Icc ha] with t ht
   by_cases hn : γ t = fun _ => 0
   · simp [hn, anomalyStrength_zero]
@@ -77,7 +74,7 @@ theorem defectAccumulation_nontrivial
     (h_nonzero : ∃ t ∈ Set.Icc a b, γ t ≠ fun _ => 0) :
     0 < defectAccumulation Γ g γ a b := by
   obtain ⟨c₀, hc₀_pos, h_bound⟩ := defectAccumulation_lower_bound Γ g γ a b (le_of_lt ha) hadm
-  
+
   have h_int_pos : 0 < ∫ t in Set.Icc a b, (frequencyNorm (γ t)) ^ 2 ∂volume := by
     apply set_integral_pos_of_continuous_nonnegative_nonzero
     · exact (measure_Icc_pos.mpr ha)
@@ -99,7 +96,7 @@ theorem defectAccumulation_nontrivial
 
 /--
 Consequence for stability analysis:
-"A nontrivial path through the anomaly landscape always accumulates 
+"A nontrivial path through the anomaly landscape always accumulates
 strictly positive defect."
 -/
 theorem no_defect_evasion

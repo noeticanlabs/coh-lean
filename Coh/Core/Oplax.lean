@@ -1,5 +1,6 @@
 import Coh.Prelude
 import Coh.Core.Clifford
+import Coh.Spectral.AnomalyStrength
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 
 namespace Coh.Core
