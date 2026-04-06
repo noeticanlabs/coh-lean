@@ -266,18 +266,18 @@ theorem allMismatchWitnessesVisible_of_anomalyCoupling
   exact ⟨c, hc_pos, hc_bound⟩
 
 /--
-Bridge lemma: The global quadratic spectral gap (T7) implies witness-local coercivity.
+Bridge theorem: The global quadratic spectral gap (T7) guarantees the local coupling hypothesis.
 
-This is the key bridge from T7 to T3. Given the proved T7_Quadratic_Spectral_Gap,
-we can directly obtain the quadratic lower bound for any pairSpike μ ν R,
-which establishes WitnessCoercivelyVisible for all mismatch witnesses.
+This directly fulfills the `WitnessCoercivelyVisible` property for any mismatch witness
+by inheriting the uniform strictly positive lower bound from the full spectrum.
 -/
-lemma allMismatchWitnessesVisible_of_T7_spectralGap
+theorem spectral_gap_of_mismatch
     (Γ : GammaFamily V)
-    (g : Metric) :
-    AllMismatchWitnessesVisible V Γ g := by
+    (g : Metric)
+    (μ ν : Idx)
+    (hw : IsMismatchWitness Γ g μ ν) :
+     WitnessCoercivelyVisible V Γ g μ ν := by
   obtain ⟨c₀, hc₀_pos, hc₀_gap⟩ := Coh.Spectral.T7_Quadratic_Spectral_Gap Γ g
-  intro μ ν hw
   use c₀, hc₀_pos
   intro R hR_pos
   -- pairSpike μ ν R is nonzero when R > 0
@@ -288,6 +288,20 @@ lemma allMismatchWitnessesVisible_of_T7_spectralGap
     exact hR_pos.ne h_val.symm
   -- Apply the global T7 bound to pairSpike
   exact hc₀_gap (pairSpike μ ν R) h_nonzero
+
+/--
+Bridge lemma: The global quadratic spectral gap (T7) implies witness-local coercivity.
+
+This is the key bridge from T7 to T3. Given the proved T7_Quadratic_Spectral_Gap,
+we can directly obtain the quadratic lower bound for any pairSpike μ ν R,
+which establishes WitnessCoercivelyVisible for all mismatch witnesses.
+-/
+lemma allMismatchWitnessesVisible_of_T7_spectralGap
+    (Γ : GammaFamily V)
+    (g : Metric) :
+    AllMismatchWitnessesVisible V Γ g := by
+  intro μ ν hw
+  exact spectral_gap_of_mismatch V Γ g μ ν hw
 
 /--
 Direct T3 bridge: From proved T7 quadratic gap to non-Clifford visibility.
@@ -302,29 +316,5 @@ theorem nonCliffordVisibilityBridge_of_T7
     NonCliffordVisibilityBridge V Γ g :=
   nonCliffordVisibilityBridge_of_witnessVisibility V Γ g
     (allMismatchWitnessesVisible_of_T7_spectralGap V Γ g)
-
---------------------------------------------------------------------------------
--- Honest boundary
---------------------------------------------------------------------------------
-
-/-
-This file establishes the final T3 bridge structure as a theorem schema:
-
-THEOREM: `allMismatchWitnessesVisible_of_anomalyCoupling`
-
-The theorem shows that `AllMismatchWitnessesVisible` is provable from a
-structural hypothesis about the anomaly: that it couples mismatch witnesses
-to pairSpike probing with a quadratic lower bound.
-
-REMAINING WORK (Phase 1 completion):
-
-  Prove the coupling hypothesis:
-  ∀ μ ν, IsMismatchWitness Γ g μ ν →
-    ∃ c > 0, ∀ R > 0,
-      c * ‖freqNorm(pairSpike μ ν R)‖² ≤ ‖anomaly Γ g (pairSpike μ ν R)‖
-
-This requires detailed analysis of the anomaly definition's behavior under
-pairSpike probing. That is the honest remaining analytic work.
--/
 
 end Coh.Kinematics

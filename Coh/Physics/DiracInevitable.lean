@@ -181,7 +181,7 @@ attribute [instance] instCarrierSpaceDirac
 This represents the explicitly constructed target representation.
 -/
 axiom dirac_spinor_admissible (g : Metric) (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ (Γ' : GammaFamily (Fin 4 → ℂ)) (L' : (Fin 4 → ℂ) → (Fin 4 → ℂ)),
+    ∃ (Γ' : GammaFamily (Fin 4 → ℂ)) (L' : ((Fin 4 → ℂ) → (Fin 4 → ℂ)) → ((Fin 4 → ℂ) → (Fin 4 → ℂ))),
     IsAdmissible (Fin 4 → ℂ) Γ' g ∧ Coh.Spectral.IsLawfulAction (Fin 4 → ℂ) Γ' g L'
 
 /--
