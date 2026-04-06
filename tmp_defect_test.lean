@@ -1,4 +1,3 @@
-import Coh.Prelude
 import Coh.Spectral.CompactnessProof
 import Mathlib.MeasureTheory.Integral.IntervalIntegral
 
@@ -12,44 +11,22 @@ open MeasureTheory intervalIntegral
 variable {V : Type*} [CarrierSpace V] [FiniteDimensional ℝ (Idx → ℝ)]
 variable (Γ : GammaFamily V) (g : Metric)
 
---------------------------------------------------------------------
--- Phase 5b: Defect Accumulation
---
--- T7 established that violations have minimum strength at each frequency.
--- Phase 5b establishes that accumulated violations along a path also have
--- minimum cost, preventing "sneaky" ways to evade the spectral gap.
---------------------------------------------------------------------
-
-/--
-A frequency path is a continuous function from [a,b] to frequency space.
-This represents how a system "moves" through frequency configurations over time.
--/
 def FrequencyPath := ℝ → (Idx → ℝ)
 
-/--
-A frequency path is admissible if it is continuous on the closed interval.
--/
 def IsAdmissiblePath (γ : FrequencyPath) (a b : ℝ) : Prop :=
   ContinuousOn γ (Set.Icc a b)
 
-/--
-The defect accumulation along a path is the integral of anomaly strength.
-The anomaly strength is integrated pointwise using Mathlib's `intervalIntegral`.
--/
+-- Real definition: Integral of anomalyStrength along path
 def defectAccumulation (γ : FrequencyPath) (a b : ℝ) : ℝ :=
   ∫ t in a..b, anomalyStrength Γ g (γ t)
 
---------------------------------------------------------------------
--- Helper Lemmas
---------------------------------------------------------------------
-
-/-- anomalyStrength ∘ path is continuous on [a,b] when path is admissible. -/
+-- Helper: anomalyStrength ∘ path is continuous on Icc 
 lemma anomalyStrength_cont_on
     (γ : FrequencyPath) (a b : ℝ) (hadm : IsAdmissiblePath γ a b) :
     ContinuousOn (fun t => anomalyStrength Γ g (γ t)) (Set.Icc a b) :=
   (anomalyStrength_continuous Γ g).comp_continuousOn hadm
 
-/-- anomalyStrength ∘ path is integrable on [a,b] (with a ≤ b). -/
+-- Helper: anomalyStrength ∘ path is integrable on [a,b] (with a ≤ b)
 lemma anomalyStrength_integrable
     (γ : FrequencyPath) (a b : ℝ) (ha : a ≤ b) (hadm : IsAdmissiblePath γ a b) :
     IntervalIntegrable (fun t => anomalyStrength Γ g (γ t)) MeasureTheory.volume a b := by
@@ -57,26 +34,23 @@ lemma anomalyStrength_integrable
   rw [Set.uIcc_of_le ha]
   exact anomalyStrength_cont_on Γ g γ a b hadm
 
-/-- frequencyNorm² ∘ path is integrable on [a,b] (uses only path continuity). -/
+-- freqNorm^2 ∘ path is integrable (no Γ g needed, only continuity of path)
 lemma freqNormSq_integrable
     (γ : FrequencyPath) (a b : ℝ) (ha : a ≤ b) (hadm : IsAdmissiblePath γ a b) :
     IntervalIntegrable (fun t => (frequencyNorm (γ t))^2) MeasureTheory.volume a b := by
   apply ContinuousOn.intervalIntegrable
   rw [Set.uIcc_of_le ha]
-  exact (continuous_norm.comp_continuousOn hadm).pow 2
+  apply ContinuousOn.pow
+  exact continuous_norm.comp_continuousOn hadm
 
+-- Helper: zero frequency has zero anomaly strength  
+lemma anomalyStrength_zero_at_zero : anomalyStrength Γ g (fun _ => 0) = 0 := by
+  simp [anomalyStrength, anomaly]
 
---------------------------------------------------------------------
--- T5b Theorems
---------------------------------------------------------------------
+-- Helper: anomalyStrength is nonneg
+lemma anomalyStrength_nonneg' (f : Idx → ℝ) : 0 ≤ anomalyStrength Γ g f := norm_nonneg _
 
-/--
-Key property: Accumulated defect respects the spectral gap.
-
-The T7 quadratic gap applies pointwise to the path, so the integral of
-the anomaly strength along any admissible path is bounded below by
-c₀ times the integral of the squared frequency norm.
--/
+-- Lower bound theorem: T7 quadratic gap integrates along any admissible path
 theorem defectAccumulation_lower_bound
     (γ : FrequencyPath) (a b : ℝ) (ha : a ≤ b) (hadm : IsAdmissiblePath γ a b) :
     ∃ c₀ > 0, c₀ * ∫ t in a..b, (frequencyNorm (γ t))^2 ≤ defectAccumulation Γ g γ a b := by
@@ -89,21 +63,15 @@ theorem defectAccumulation_lower_bound
       (anomalyStrength_integrable Γ g γ a b ha hadm)
   intro t ht
   by_cases h_zero : γ t = fun _ => 0
-  · -- zero case: frequencyNorm = 0, so c₀ * 0² = 0 ≤ anomalyStrength ≥ 0
+  · -- zero case: frequencyNorm 0 = 0, so c₀ * 0² = 0 ≤ anomalyStrength ≥ 0
     have hfn0 : frequencyNorm (γ t) = 0 := by
       rw [frequencyNorm, h_zero]; simp [Pi.zero_def]
     rw [hfn0]
     ring_nf
-    exact anomalyStrength_nonneg Γ g _
+    exact anomalyStrength_nonneg' Γ g _
   · linarith [hc₀_gap (γ t) h_zero]
 
-/--
-Corollary: Any nontrivial path accumulates nonzero defect.
-
-If the path touches even a single nonzero frequency point, then by T7 the
-anomaly strength is strictly positive at that point, and continuity ensures
-the integral is strictly positive.
--/
+-- Nontrivial: any path touching a nonzero point accumulates positive defect
 theorem defectAccumulation_nontrivial
     (γ : FrequencyPath) (a b : ℝ) (ha : a < b) (hadm : IsAdmissiblePath γ a b)
     (h_nonzero : ∃ t ∈ Set.Icc a b, γ t ≠ fun _ => 0) :
@@ -116,17 +84,10 @@ theorem defectAccumulation_nontrivial
     linarith [hc₀_gap (γ t₀) hne, mul_pos hc₀_pos (pow_pos hfn_pos 2)]
   exact intervalIntegral.integral_pos ha
       (anomalyStrength_cont_on Γ g γ a b hadm)
-      (fun x _ => anomalyStrength_nonneg Γ g (γ x))
+      (fun x hx => anomalyStrength_nonneg' Γ g (γ x))
       ⟨t₀, ht₀, h_pos_t₀⟩
 
-/--
-Consequence for stability analysis:
-"A nontrivial path through the anomaly landscape always accumulates
-strictly positive defect."
-
-Any path is either everywhere zero, or it accumulates strictly positive defect —
-there is no middle ground.
--/
+-- No-evasion: any path is either entirely zero or accumulates strictly positive defect
 theorem no_defect_evasion
     (γ : FrequencyPath) (a b : ℝ) (ha : a < b) (hadm : IsAdmissiblePath γ a b) :
     (∀ t ∈ Set.Icc a b, γ t = fun _ => 0) ∨ 0 < defectAccumulation Γ g γ a b := by

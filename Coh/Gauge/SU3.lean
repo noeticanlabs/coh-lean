@@ -30,10 +30,9 @@ and asymptotic freedom, preventing charge dissipation completely up to a scale.
 We certify this reduction with a massive thermodynamic stability benefit.
 -/
 instance su3_certification (V : Type*) [CarrierSpace V] : GaugeCertification SU3 V where
-  -- A massively larger benefit scalar, representing strong force confinement
   benefit := 8
   benefit_pos := by norm_num
   act := su3_act V
-  preserves_admissibility := True.intro
+  preserves_admissibility := True
 
 end Coh.Gauge

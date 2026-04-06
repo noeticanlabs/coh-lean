@@ -30,10 +30,9 @@ by coupling left-handed components to gauge bosons.
 We certify this reduction with a proportional thermodynamic stability benefit.
 -/
 instance su2_certification (V : Type*) [CarrierSpace V] : GaugeCertification SU2 V where
-  -- A distinct benefit scalar, isolating its stability difference from U(1)
   benefit := 3
   benefit_pos := by norm_num
   act := su2_act V
-  preserves_admissibility := True.intro
+  preserves_admissibility := True
 
 end Coh.Gauge

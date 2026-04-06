@@ -32,6 +32,6 @@ instance u1_certification (V : Type*) [CarrierSpace V] : GaugeCertification U1 V
   benefit := 3 / 2
   benefit_pos := by norm_num
   act := u1_act V
-  preserves_admissibility := True.intro
+  preserves_admissibility := True
 
 end Coh.Gauge

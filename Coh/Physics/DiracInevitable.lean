@@ -104,6 +104,7 @@ The proof composes the three theorem stacks as follows:
 
 Result: V ≃ₗ[ℝ] (Fin 4 → ℂ) with Clifford + complex preservation.
 -/
+theorem dirac_inevitability_schema
     (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V)
     (g : Metric)
@@ -197,13 +198,16 @@ lemma dirac_finrank_upper_bound
     Module.finrank ℝ V ≤ 8 := by
   obtain ⟨_, _, hMin⟩ := hSp
   obtain ⟨Γ', L', hAdm'⟩ := dirac_spinor_admissible g hLorentz
-  -- moduleRank V ≤ moduleRank (Fin 4 → ℂ)
-  have hLe := hMin (Fin 4 → ℂ) Γ' L' hAdm'
-  have hRankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by
-    simp only [Coh.Core.moduleRank, Module.finrank_fintype_fun_eq_card,
-      Complex.finrank_real_complex, Finset.card_fin, Nat.cast_ofNat, mul_comm]
+  -- Apply the minimality: moduleRank V ≤ moduleRank (Fin 4 → ℂ)
+  have hLe : moduleRank V ≤ moduleRank (Fin 4 → ℂ) := hMin (Fin 4 → ℂ) Γ' L' hAdm'
+  -- Compute moduleRank (Fin 4 → ℂ) = 8
+  have hRankDirac : moduleRank (Fin 4 → ℂ) = 8 := by
+    unfold Coh.Thermo.moduleRank
+    simp only [Module.finrank_fintype_fun_eq_card, Complex.finrank_real_complex,
+      Finset.card_fin, Nat.cast_ofNat, mul_comm]
     norm_num
-  rwa [hRankDirac] at hLe
+  rw [hRankDirac] at hLe
+  exact_mod_cast hLe
 
 /--
 [LEMMA-NEEDED] Representation-Theoretic Lower Bound:
