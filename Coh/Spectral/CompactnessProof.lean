@@ -21,7 +21,7 @@ variable (Γ : GammaFamily V) (g : Metric)
 --------------------------------------------------------------------------------
 
 /--
-Clifford Rigidity: On the unit frequency sphere, the anomaly is strictly positive.
+[AXIOM] Clifford Rigidity: On the unit frequency sphere, the anomaly is strictly positive.
 This is the foundational assumption for the Visibility Spectral Gap.
 -/
 axiom clifford_anomaly_positive_on_unit_sphere :

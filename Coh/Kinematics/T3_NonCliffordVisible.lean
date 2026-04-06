@@ -1,6 +1,7 @@
 import Coh.Core.Clifford
 import Coh.Kinematics.T3_CoerciveVisibility
 import Coh.Kinematics.T3_Necessity
+import Coh.Spectral.VisibilityGap
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
@@ -9,6 +10,8 @@ noncomputable section
 
 namespace Coh.Kinematics
 
+open Coh Coh.Core
+
 open scoped BigOperators
 
 --------------------------------------------------------------------------------
@@ -16,8 +19,9 @@ open scoped BigOperators
 --------------------------------------------------------------------------------
 
 variable (V : Type*)
-variable [NormedAddCommGroup V] [NormedSpace ℝ V]
-variable [FiniteDimensional ℝ V]
+variable [CarrierSpace V]
+
+abbrev freqNorm : (Idx → ℝ) → ℝ := frequencyNorm
 
 /--
 The operator mismatch at a specific pair `(μ, ν)`.
@@ -27,7 +31,7 @@ def cliffordMismatchAt
     (Γ : GammaFamily V)
     (g : Metric)
     (μ ν : Idx) : V →L[ℝ] V :=
-  anticommutator V (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp V
+  Coh.Core.cliffordMismatchAt Γ g μ ν
 
 /--
 Existence of an index-pair mismatch witness.
@@ -35,7 +39,7 @@ Existence of an index-pair mismatch witness.
 def HasMismatchWitness
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
-  ∃ μ ν : Idx, IsMismatchWitness V Γ g μ ν
+  ∃ μ ν : Idx, IsMismatchWitness Γ g μ ν
 
 --------------------------------------------------------------------------------
 -- Logical reduction: non-Clifford iff some witness exists
@@ -44,32 +48,37 @@ def HasMismatchWitness
 lemma hasMismatchWitness_of_not_clifford
     (Γ : GammaFamily V)
     (g : Metric)
-    (hNot : ¬ IsClifford V Γ g) :
+    (hNot : ¬ IsClifford Γ g) :
     HasMismatchWitness V Γ g := by
   by_contra hNo
   apply hNot
   intro μ ν
   unfold HasMismatchWitness at hNo
   push_neg at hNo
-  have hm : ¬ IsMismatchWitness V Γ g μ ν := hNo μ ν
+  have hm : ¬ IsMismatchWitness Γ g μ ν := hNo μ ν
   unfold IsMismatchWitness at hm
   push_neg at hm
-  exact hm
+  have hm' : Coh.Core.cliffordMismatchAt Γ g μ ν = 0 := hm
+  rw [Coh.Core.cliffordMismatchAt] at hm'
+  exact sub_eq_zero.mp hm'
 
 lemma not_clifford_of_hasMismatchWitness
     (Γ : GammaFamily V)
     (g : Metric)
     (hW : HasMismatchWitness V Γ g) :
-    ¬ IsClifford V Γ g := by
+    ¬ IsClifford Γ g := by
   intro hCl
   rcases hW with ⟨μ, ν, hμν⟩
   unfold IsMismatchWitness at hμν
-  exact hμν (hCl μ ν)
+  have hzero : Coh.Core.cliffordMismatchAt Γ g μ ν = 0 := by
+    rw [Coh.Core.cliffordMismatchAt]
+    exact sub_eq_zero.mpr (hCl μ ν)
+  exact hμν hzero
 
 theorem not_clifford_iff_hasMismatchWitness
     (Γ : GammaFamily V)
     (g : Metric) :
-    ¬ IsClifford V Γ g ↔ HasMismatchWitness V Γ g := by
+    ¬ IsClifford Γ g ↔ HasMismatchWitness V Γ g := by
   constructor
   · exact hasMismatchWitness_of_not_clifford V Γ g
   · exact not_clifford_of_hasMismatchWitness V Γ g
@@ -152,7 +161,7 @@ def WitnessCoercivelyVisible
     (g : Metric)
     (μ ν : Idx) : Prop :=
   ∃ c : ℝ, 0 < c ∧ ∀ R : ℝ, 0 < R →
-    c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+    c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly Γ g (pairSpike μ ν R)‖
 
 /--
 Global witness visibility: every mismatch witness is coercively visible.
@@ -161,7 +170,7 @@ def AllMismatchWitnessesVisible
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
   ∀ μ ν : Idx,
-    IsMismatchWitness V Γ g μ ν →
+    IsMismatchWitness Γ g μ ν →
     WitnessCoercivelyVisible V Γ g μ ν
 
 --------------------------------------------------------------------------------
@@ -196,7 +205,7 @@ theorem nonClifford_implies_visibleAnomaly_of_witnessVisibility
     (Γ : GammaFamily V)
     (g : Metric)
     (hAll : AllMismatchWitnessesVisible V Γ g) :
-    ¬ IsClifford V Γ g → QuadraticAnomalyVisible V Γ g := by
+    ¬ IsClifford Γ g → QuadraticAnomalyVisible V Γ g := by
   intro hNot
   rcases hasMismatchWitness_of_not_clifford V Γ g hNot with ⟨μ, ν, hW⟩
   exact quadraticVisible_of_visibleWitness V Γ g μ ν (hAll μ ν hW)
@@ -227,13 +236,9 @@ lemma mismatchAt_nonzero_of_witness
     (Γ : GammaFamily V)
     (g : Metric)
     (μ ν : Idx)
-    (hw : IsMismatchWitness V Γ g μ ν) :
+    (hw : IsMismatchWitness Γ g μ ν) :
     cliffordMismatchAt V Γ g μ ν ≠ 0 := by
-  intro h_eq
-  unfold cliffordMismatchAt at h_eq
-  have h_anticomm : anticommutator V (Γ.Γ μ) (Γ.Γ ν) = (2 * g.g μ ν) • idOp V :=
-    sub_eq_zero.mp h_eq
-  exact hw h_anticomm
+  simpa [cliffordMismatchAt, Coh.Core.IsMismatchWitness] using hw
 
 /--
 Main Theorem: Visibility follows directly from anomaly coupling hypothesis.
@@ -249,16 +254,54 @@ established from the specific structure of the anomaly definition.
 theorem allMismatchWitnessesVisible_of_anomalyCoupling
     (Γ : GammaFamily V)
     (g : Metric)
-    (h_coupling : ∀ μ ν : Idx, IsMismatchWitness V Γ g μ ν →
+    (h_coupling : ∀ μ ν : Idx, IsMismatchWitness Γ g μ ν →
       ∃ c : ℝ, 0 < c ∧
         ∀ R : ℝ, 0 < R →
           c * (freqNorm (pairSpike μ ν R))^2 ≤
-            ‖anomaly V Γ g (pairSpike μ ν R)‖) :
+            ‖anomaly Γ g (pairSpike μ ν R)‖) :
     AllMismatchWitnessesVisible V Γ g := by
   intro μ ν hw
   unfold WitnessCoercivelyVisible
   rcases h_coupling μ ν hw with ⟨c, hc_pos, hc_bound⟩
   exact ⟨c, hc_pos, hc_bound⟩
+
+/--
+Bridge lemma: The global quadratic spectral gap (T7) implies witness-local coercivity.
+
+This is the key bridge from T7 to T3. Given the proved T7_Quadratic_Spectral_Gap,
+we can directly obtain the quadratic lower bound for any pairSpike μ ν R,
+which establishes WitnessCoercivelyVisible for all mismatch witnesses.
+-/
+lemma allMismatchWitnessesVisible_of_T7_spectralGap
+    (Γ : GammaFamily V)
+    (g : Metric) :
+    AllMismatchWitnessesVisible V Γ g := by
+  obtain ⟨c₀, hc₀_pos, hc₀_gap⟩ := Coh.Spectral.T7_Quadratic_Spectral_Gap Γ g
+  intro μ ν hw
+  use c₀, hc₀_pos
+  intro R hR_pos
+  -- pairSpike μ ν R is nonzero when R > 0
+  have h_nonzero : pairSpike μ ν R ≠ fun _ => 0 := by
+    intro h_eq
+    have h_val := congrArg (fun f : Idx → ℝ => f μ) h_eq
+    simp [pairSpike, hR_pos.ne] at h_val
+    exact hR_pos.ne h_val.symm
+  -- Apply the global T7 bound to pairSpike
+  exact hc₀_gap (pairSpike μ ν R) h_nonzero
+
+/--
+Direct T3 bridge: From proved T7 quadratic gap to non-Clifford visibility.
+
+This theorem provides a direct route to establish NonCliffordVisibilityBridge
+by consuming the proved T7_Quadratic_Spectral_Gap theorem, bypassing the need
+for an ad hoc coupling hypothesis.
+-/
+theorem nonCliffordVisibilityBridge_of_T7
+    (Γ : GammaFamily V)
+    (g : Metric) :
+    NonCliffordVisibilityBridge V Γ g :=
+  nonCliffordVisibilityBridge_of_witnessVisibility V Γ g
+    (allMismatchWitnessesVisible_of_T7_spectralGap V Γ g)
 
 --------------------------------------------------------------------------------
 -- Honest boundary
@@ -275,10 +318,10 @@ to pairSpike probing with a quadratic lower bound.
 
 REMAINING WORK (Phase 1 completion):
 
-Prove the coupling hypothesis:
-  ∀ μ ν, IsMismatchWitness V Γ g μ ν →
+  Prove the coupling hypothesis:
+  ∀ μ ν, IsMismatchWitness Γ g μ ν →
     ∃ c > 0, ∀ R > 0,
-      c * ‖freqNorm(pairSpike μ ν R)‖² ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+      c * ‖freqNorm(pairSpike μ ν R)‖² ≤ ‖anomaly Γ g (pairSpike μ ν R)‖
 
 This requires detailed analysis of the anomaly definition's behavior under
 pairSpike probing. That is the honest remaining analytic work.

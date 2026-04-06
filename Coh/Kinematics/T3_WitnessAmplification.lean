@@ -9,13 +9,14 @@ noncomputable section
 
 namespace Coh.Kinematics
 
+open Coh Coh.Core
+
 --------------------------------------------------------------------------------
 -- Witness amplification layer
 --------------------------------------------------------------------------------
 
 variable (V : Type*)
-variable [NormedAddCommGroup V] [NormedSpace ℝ V]
-variable [FiniteDimensional ℝ V]
+variable [CarrierSpace V]
 
 /--
 A local quadratic coercivity hypothesis for a mismatch witness `(μ, ν)`.
@@ -30,7 +31,7 @@ def WitnessQuadraticLowerBound
     (μ ν : Idx) : Prop :=
   ∃ c : ℝ, 0 < c ∧
     ∀ R : ℝ, 0 < R →
-      c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly V Γ g (pairSpike μ ν R)‖
+      c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly Γ g (pairSpike μ ν R)‖
 
 /--
 A uniform amplification principle: every mismatch witness admits a quadratic lower bound.
@@ -39,7 +40,7 @@ def UniformWitnessAmplification
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
   ∀ μ ν : Idx,
-    IsMismatchWitness V Γ g μ ν →
+    IsMismatchWitness Γ g μ ν →
     WitnessQuadraticLowerBound V Γ g μ ν
 
 --------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ theorem clifford_of_subquadratic_soundness_and_uniformAmplification
     (hSub : SubquadraticDefectBound Δ)
     (hSound : CoercivelyOplaxSound V Γ g Δ)
     (hAmp : UniformWitnessAmplification V Γ g) :
-    IsClifford V Γ g := by
+    IsClifford Γ g := by
   apply clifford_of_coercive_soundness V Γ g Δ hSub hSound
   exact nonCliffordVisibilityBridge_of_uniformAmplification V Γ g hAmp
 
@@ -102,11 +103,11 @@ theorem oplaxSound_forces_clifford_of_uniformAmplification
     (hSub : SubquadraticDefectBound Δ)
     (hSound : CoercivelyOplaxSound V Γ g Δ)
     (hAmp : UniformWitnessAmplification V Γ g) :
-    OplaxSound V Γ g := by
-  have hCl : IsClifford V Γ g :=
+    OplaxSound Γ g := by
+  have hCl : IsClifford Γ g :=
     clifford_of_subquadratic_soundness_and_uniformAmplification
       V Γ g Δ hSub hSound hAmp
-  exact oplaxSound_of_clifford V Γ g hCl
+  exact oplaxSound_of_clifford Γ g hCl
 
 --------------------------------------------------------------------------------
 -- Honest boundary

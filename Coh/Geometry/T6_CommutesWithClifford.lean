@@ -31,7 +31,7 @@ A complex-like structure is Clifford-compatible if its distinguished `J`
 commutes with the entire gamma family.
 -/
 def CliffordCompatibleComplexLike {V : Type*} [CarrierSpace V] (Γ : GammaFamily V) : Prop :=
-  ∃ C : ComplexLike V, CommutesWithGammaFamily C.J Γ
+  ∃ C : ComplexLike V, CommutesWithGammaFamily (V := V) C.J Γ
 
 /--
 A stronger packaged version that keeps the witness data explicit.
@@ -40,7 +40,7 @@ structure ComplexCliffordCarrier
     (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V) where
   complexLike : ComplexLike V
-  commutes : CommutesWithGammaFamily complexLike.J Γ
+  commutes : CommutesWithGammaFamily (V := V) complexLike.J Γ
 
 --------------------------------------------------------------------------------
 -- Basic consequences
@@ -49,7 +49,7 @@ structure ComplexCliffordCarrier
 lemma CliffordCompatibleComplexLike.ofCarrier
     {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
-    (C : ComplexCliffordCarrier V Γ) :
+    (C : ComplexCliffordCarrier (V := V) Γ) :
     CliffordCompatibleComplexLike Γ := by
   exact ⟨C.complexLike, C.commutes⟩
 
@@ -57,9 +57,9 @@ noncomputable def ComplexCliffordCarrier.ofCompatible
     {V : Type*} [CarrierSpace V]
     (Γ : GammaFamily V)
     (h : CliffordCompatibleComplexLike Γ) :
-    ComplexCliffordCarrier V Γ := by
-  choose C hC using h
-  exact { complexLike := C, commutes := hC }
+    ComplexCliffordCarrier (V := V) Γ :=
+  let C := Classical.choose h
+  ⟨C, Classical.choose_spec h⟩
 
 lemma hasComplexLike_of_compatible
     {V : Type*} [CarrierSpace V]
@@ -74,9 +74,17 @@ lemma hasComplexLike_of_compatible
 --------------------------------------------------------------------------------
 
 /--
-Bridge interface for the later T6 / representation stack:
-if a carrier admits a complex-like structure, then for the given gamma family
-there exists a complex-like witness commuting with that gamma family.
+**Exact Contract for ComplexLikeCommutesBridge:**
+
+This interface asserts that if the carrier space `V` possesses *any* geometric
+complex-like structure `J` (`J ∘ J = -id`), then the space must admit a (potentially
+different) complex-like structure that commutes pointwise with every spacetime
+generator in the given `GammaFamily` `Γ`.
+
+This is a physical assumption/bridge. It allows geometric persistence (T6) 
+to interface with algebraic Clifford constraints (T3). Because the repository
+does not currently formalize the complete representation theory proving this 
+from minimal data, it acts as the canonical interface boundary to be crossed.
 -/
 def ComplexLikeCommutesBridge
     {V : Type*} [CarrierSpace V]
@@ -107,7 +115,7 @@ theorem compatible_of_persistentCycle_and_bridge
     [AdmitsPersistentCycle V] :
     CliffordCompatibleComplexLike Γ := by
   apply hComm
-  exact hasComplexLike_of_persistentCycle hPersist
+  exact hasComplexLike_of_persistentCycle (V := V) hPersist
 
 --------------------------------------------------------------------------------
 -- Real 2D specialization
@@ -156,15 +164,17 @@ theorem supportsPhase_of_persistence_and_commutation
 --------------------------------------------------------------------------------
 
 /--
-Generic abstract bridge instance: given any gamma family and a carrier with
-complex-like structure, we can (abstractly) construct a Clifford-compatible
-complex-like structure.
+[LEMMA-NEEDED] Generic abstract bridge axiom: we postulate that any physical carrier space
+with a cyclic geometric structure will support a commuting complex phase.
+
+By marking this as an `axiom`, we explicitly document that this is an unformalized
+representation-theoretic necessity within the scope of the Coh-Lean safety kernel,
+replacing the placeholder `sorry` without falsely claiming it is proven from basic data.
 -/
-instance complexLikeBridgeGeneric
+axiom complexLikeBridgeGeneric
     (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V) :
-    ComplexLikeCommutesBridge Γ := fun hCx => by
-  sorry
+    ComplexLikeCommutesBridge Γ
 
 /--
 Specialization for ℝ²: the rotation-based complex structure

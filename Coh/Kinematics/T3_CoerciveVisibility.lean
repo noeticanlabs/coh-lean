@@ -92,7 +92,7 @@ Visibility Bridge: Non-Clifford families are visible.
 def NonCliffordVisibilityBridge
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
-  ¬ IsClifford V Γ g → QuadraticAnomalyVisible V Γ g
+  ¬ IsClifford Γ g → QuadraticAnomalyVisible V Γ g
 
 theorem clifford_of_coercive_soundness
     (Γ : GammaFamily V)
@@ -101,7 +101,7 @@ theorem clifford_of_coercive_soundness
     (hSub : SubquadraticDefectBound Δ)
     (hSound : CoercivelyOplaxSound V Γ g Δ)
     (hBridge : NonCliffordVisibilityBridge V Γ g) :
-    IsClifford V Γ g := by
+    IsClifford Γ g := by
   by_contra hNot
   have hVis := hBridge hNot
   exact anomaly_contradicts_subquadratic_defect V Γ g Δ hVis hSub hSound

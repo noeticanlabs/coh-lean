@@ -150,7 +150,7 @@ Result: V ≃ₗ[ℝ] (Fin 4 → ℂ) with Clifford + complex preservation.
   -- Two finite-dimensional vector spaces over ℝ with equal finrank are isomorphic.
   
   -- V has finrank 8 (from T5 bridge).
-  have h_rankV := t5_bridge_to_dirac_finrank V Γ g hSp
+  have h_rankV := t5_bridge_to_dirac_finrank V Γ g L hLorentz hSp
   
   -- (Fin 4 → ℂ) has finrank 8 (concrete computation).
   have h_rankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by
@@ -170,34 +170,57 @@ Result: V ≃ₗ[ℝ] (Fin 4 → ℂ) with Clifford + complex preservation.
 --------------------------------------------------------------------------------
 
 /--
+[LEMMA-NEEDED] The standard Dirac spinor space is a CarrierSpace.
+This requires instantiating the topological and metric structures which are currently omitted.
+-/
+axiom instCarrierSpaceDirac : CarrierSpace (Fin 4 → ℂ)
+attribute [instance] instCarrierSpaceDirac
+
+/--
+[LEMMA-NEEDED] The standard Dirac spinor space is an admissible carrier.
+This represents the explicitly constructed target representation.
+-/
+axiom dirac_spinor_admissible (g : Metric) (hLorentz : g.signature = MetricSignature.lorentzian) :
+    ∃ (Γ' : GammaFamily (Fin 4 → ℂ)) (L' : (Fin 4 → ℂ) → (Fin 4 → ℂ)),
+    IsAdmissible (Fin 4 → ℂ) Γ' g ∧ Coh.Spectral.IsLawfulAction (Fin 4 → ℂ) Γ' g L'
+
+/--
+Thermodynamic Upper Bound:
+The minimality condition of `IsSpinorCandidate` forces the rank to be bounded
+by the known admissible Dirac spinor space.
+-/
+lemma dirac_finrank_upper_bound
+    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
+    (L : (V → V) → (V → V))
+    (hLorentz : g.signature = MetricSignature.lorentzian)
+    (hSp : IsSpinorCandidate V Γ g L) :
+    Module.finrank ℝ V ≤ 8 := by
+  obtain ⟨_, _, hMin⟩ := hSp
+  obtain ⟨Γ', L', hAdm'⟩ := dirac_spinor_admissible g hLorentz
+  -- moduleRank V ≤ moduleRank (Fin 4 → ℂ)
+  have hLe := hMin (Fin 4 → ℂ) Γ' L' hAdm'
+  have hRankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by
+    simp only [Coh.Core.moduleRank, Module.finrank_fintype_fun_eq_card,
+      Complex.finrank_real_complex, Finset.card_fin, Nat.cast_ofNat, mul_comm]
+    norm_num
+  rwa [hRankDirac] at hLe
+
+/--
+[LEMMA-NEEDED] Representation-Theoretic Lower Bound:
+Any faithful representation of the 4D Lorentzian Clifford algebra 
+with a commute-compatible complex structure has real rank ≥ 8.
+This is the unformalized heart of the T5 irreducible bridge.
+-/
+axiom dirac_finrank_lower_bound
+    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
+    (hLorentz : g.signature = MetricSignature.lorentzian)
+    (hAdm : IsAdmissible V Γ g) :
+    8 ≤ Module.finrank ℝ V
+
+/--
 T5 Representation-Theoretic Bridge:
-
-Key lemma that links the Dirac Inevitability Schema to concrete T5 results.
-
-The finrank equality Module.finrank ℝ V = 8 is established by:
-
-1. **FaithfulIrreducibleBridge** (T5_RepresentationMinimality.lean:120):
-   - Any faithful irreducible carrier W with the same physical content as V
-   - and moduleRank V > moduleRank W
-   - is thermodynamically dominated (larger rank, shorter lifespan).
-
-2. **Irreducibility of Dirac Spinors:**
-   - The Dirac spinor representation (Fin 4 → ℂ) is irreducible under
-   - Clifford anticommutation {Γ_μ, Γ_ν} = 2 g_μν I.
-   - In 4D spacetime (Cl(1,3) with dim 16), the spinor module has dimension 8.
-
-3. **Minimality Application:**
-   - From IsSpinorCandidate, apply hMin to W = Fin 4 → ℂ (which is admissible):
-     moduleRank V ≤ 8
-   - From T5 irreducibility, any faithful representation with Clifford + complex:
-     moduleRank V ≥ 8
-   - Therefore: moduleRank V = 8
-
-This establishes Module.finrank ℝ V = Module.finrank ℝ (Fin 4 → ℂ) = 8.
-
-Reference:
-  - Coh.Thermo.T5_RepresentationMinimality.FaithfulIrreducibleBridge
-  - Coh.Thermo.T5_RepresentationMinimality.dominated_of_sameContent_and_larger
+Combines the thermodynamic upper bound and the algebraic lower bound
+to lock the module rank to exactly 8.
 -/
 lemma t5_bridge_to_dirac_finrank
     (V : Type*)
@@ -205,23 +228,11 @@ lemma t5_bridge_to_dirac_finrank
     (Γ : GammaFamily V)
     (g : Metric)
     (L : (V → V) → (V → V))
+    (hLorentz : g.signature = MetricSignature.lorentzian)
     (hSp : IsSpinorCandidate V Γ g L) :
     Module.finrank ℝ V = 8 := by
-  obtain ⟨hAdm, hMin⟩ := hSp
-  
-  -- 1. Minimality: moduleRank V ≤ moduleRank (Fin 4 → ℂ)
-  -- Since (Fin 4 → ℂ) is an admissible carrier (Clifford + Complex structure).
-  have h_le_8 : Module.finrank ℝ V ≤ 8 := by
-    -- apply hMin to (Fin 4 → ℂ)
-    sorry
-
-  -- 2. Irreducibility: moduleRank V ≥ 8
-  -- Any faithful representation of the 4D Lorentzian Clifford algebra 
-  -- with a commute-compatible complex structure has real rank ≥ 8.
-  have h_ge_8 : Module.finrank ℝ V ≥ 8 := by
-    -- use FaithfulIrreducibleBridge from T5
-    sorry
-
+  have h_le_8 := dirac_finrank_upper_bound V Γ g L hLorentz hSp
+  have h_ge_8 := dirac_finrank_lower_bound V Γ g hLorentz hSp.1
   exact Nat.le_antisymm h_le_8 h_ge_8
 
 --------------------------------------------------------------------------------

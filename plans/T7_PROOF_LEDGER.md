@@ -63,12 +63,37 @@
   - [`T7_Quadratic_Spectral_Gap`](../Coh/Spectral/CompactnessProof.lean)
 - Classification: positivity
 
-## Obstruction map
+## T3 Analytic Visibility Bridge — Implementation Checklist
 
-- The load-bearing core is Placeholder 1.
-- The original linear-gap strategy helpers in [`Coh/Spectral/VisibilityGap.lean`](../Coh/Spectral/VisibilityGap.lean) were stronger than the proved quadratic theorem and should not remain as theorem placeholders.
-- The safe closure path is:
-  1. prove Placeholder 1,
-  2. prove Placeholder 2 in quadratic form,
-  3. prove Placeholder 5 and Placeholder 6 in quadratic form,
-  4. demote Placeholder 3 and Placeholder 4 to explicit doc-only helpers.
+### Scope lock
+- Target: close the T3 bridge by consuming the proved T7 quadratic spectral gap
+- Strategy: local kinematics bridge (keep core interface witness-local vs global decision in kinematics layer)
+- Entry point: [`Coh.Kinematics.T7_Quadratic_Spectral_Gap`](Coh/Spectral/CompactnessProof.lean:87)
+
+### Implementation Checklist
+
+- [ ] **1. Rebase bridge on T7 machinery**
+  - [ ] Import [`Coh.Spectral.T7_Quadratic_Spectral_Gap`](Coh/Spectral/CompactnessProof.lean:87) into the kinematics layer
+  - [ ] Replace ad hoc coupling axiom references with the proved quadratic bound
+
+- [ ] **2. Refactor witness visibility definitions**
+  - [ ] Verify [`Coh.Kinematics.WitnessCoercivelyVisible`](Coh/Kinematics/T3_NonCliffordVisible.lean:150) can be expressed in terms of the global quadratic bound
+  - [ ] Verify [`Coh.Kinematics.AllMismatchWitnessesVisible`](Coh/Kinematics/T3_NonCliffordVisible.lean:160) structure still holds
+
+- [ ] **3. Add bridge lemma**
+  - [ ] Prove: if global quadratic bound holds, then witness-local coercivity holds on [`pairSpike`](Coh/Kinematics/T3_NonCliffordVisible.lean:90)
+  - [ ] Lemma form: `∀ μ ν, WitnessCoercivelyVisible V Γ g μ ν` from `T7_Quadratic_Spectral_Gap`
+
+- [ ] **4. Route through existing packaging**
+  - [ ] Fix [`Coh.Kinematics.nonCliffordVisibilityBridge_of_witnessVisibility`](Coh/Kinematics/T3_NonCliffordVisible.lean:208)
+  - [ ] Fix [`Coh.Kinematics.nonCliffordVisibilityBridge_of_uniformAmplification`](Coh/Kinematics/T3_WitnessAmplification.lean:75)
+  - [ ] Fix [`Coh.Kinematics.clifford_of_coercive_soundness_composition`](Coh/Kinematics/T3_Necessity.lean:25)
+
+- [ ] **5. Decide local vs global interface**
+  - [ ] Keep core interface in kinematics layer (witness-local)
+  - [ ] Optionally upgrade to global anomaly-bound theorem in [`Coh.Core/Oplax.lean`](Coh/Core/Oplax.lean:64) as separate task
+
+- [ ] **6. Rebuild and audit**
+  - [ ] Run `lake build` to verify compilation
+  - [ ] `grep sorry` in kinematics files to confirm no proof-bearing sorry remains
+  - [ ] Document any remaining gaps in a new T3 ledger if needed

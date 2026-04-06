@@ -12,6 +12,9 @@ structure LawfulCarrier where
   Space : Type u
   inst : CarrierSpace Space
   rank : ℕ
+  rank_eq : rank = Module.finrank ℝ Space
+
+instance (C : LawfulCarrier) : CarrierSpace C.Space := C.inst
 
 /-- Helper to extract dimension from a lawful carrier. -/
 def LawfulCarrier.dim (C : LawfulCarrier) : ℕ := C.rank
@@ -41,13 +44,13 @@ lemma dim_preserved_under_equivalence
     (h : CarrierEquivalent C D) :
     C.dim = D.dim := by
   rcases h with ⟨f, _⟩
-  -- This would be proved by Mathlib's finrank_eq_finrank_of_linearEquiv
-  sorry
+  rw [LawfulCarrier.dim, LawfulCarrier.dim, C.rank_eq, D.rank_eq]
+  exact LinearEquiv.finrank_eq f
 
 /-- The real line as a carrier space. -/
-instance : CarrierSpace ℝ := { }
+noncomputable instance : CarrierSpace ℝ := { }
 
 /-- The real plane as a carrier space. -/
-instance : CarrierSpace (ℝ × ℝ) := { }
+noncomputable instance : CarrierSpace (ℝ × ℝ) := { }
 
 end Coh.Core

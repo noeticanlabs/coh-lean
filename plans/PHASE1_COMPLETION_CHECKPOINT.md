@@ -6,6 +6,20 @@
 
 ---
 
+## Build Fixes (2026-04-06)
+
+As a prerequisite to continued work, three pre-existing build errors were fixed:
+
+| File | Issue | Fix Applied |
+|------|-------|-------------|
+| `Coh/Geometry/T6_CommutesWithClifford.lean` | Prop-only recursor error with `rcases` | Changed to `Classical.choose` / `Classical.choose_spec` |
+| `Coh/Spectral/DefectAccumulation.lean` | Section variable state issues | Simplified to direct parameter passing |
+| `Coh/Spectral/T8_StabilityMinimality.lean` | Implicit parameter elaboration issues | Refactored to explicit typeclass instances |
+
+**Status**: All 3 files now build successfully without sorry placeholders.
+
+---
+
 ## Summary
 
 **Phase 1: T3 Analytic Visibility Bridge** has been successfully implemented in [`Coh/Kinematics/T3_NonCliffordVisible.lean`](../Coh/Kinematics/T3_NonCliffordVisible.lean).

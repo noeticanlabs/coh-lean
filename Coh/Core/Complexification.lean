@@ -56,25 +56,21 @@ def AdmitsPersistentCycle {V : Type u} [AddCommGroup V] [Module ℝ V]
 --------------------------------------------------------------------------------
 
 /--
-On the real line, exponential dynamics ∂ₜx = ax cannot produce periodic orbits
-unless a = 0 (static case).
+On the real line, positive exponential dynamics ∂ₜx = a x (for $a \ge 0$)
+cannot produce periodic orbits unless $a = 1$ (static case).
 -/
 lemma realLine_no_nontrivial_periodic :
-    ¬∃ (x₀ : ℝ) (a : ℝ), x₀ ≠ 0 ∧ a ≠ 0 ∧
+    ¬∃ (x₀ : ℝ) (a : ℝ), x₀ ≠ 0 ∧ 0 ≤ a ∧ a ≠ 1 ∧
       ∃ N : ℕ, 0 < N ∧ (a : ℝ) ^ N * x₀ = x₀ := by
-  intro ⟨x₀, a, hx₀, ha, N, hN, hperiod⟩
-  have key : (a : ℝ) ^ N = 1 := by
-    have h1 : (a : ℝ) ^ N * x₀ = x₀ := hperiod
-    by_contra h_ne
-    have h_nonzero : a ^ N ≠ 0 := pow_ne_zero N ha
-    have : ((a : ℝ) ^ N : ℝ) = 1 := by
-      by_contra h
-      have hab : (a : ℝ) ^ N * x₀ / x₀ = 1 := by
-        rw [h1]; simp [hx₀]
-      simp [hx₀] at hab
-      exact h hab
-    exact h_ne this
-  sorry  -- Representation-theoretic argument: real N-th roots of unity are ±1
+  rintro ⟨x₀, a, hx₀, ha_nonneg, ha_ne_one, N, hN, hperiod⟩
+  have eq_one : a ^ N = 1 := by
+    calc a ^ N = a ^ N * 1 := by rw [mul_one]
+      _ = a ^ N * (x₀ * x₀⁻¹) := by rw [mul_inv_cancel₀ hx₀]
+      _ = (a ^ N * x₀) * x₀⁻¹ := by rw [mul_assoc]
+      _ = x₀ * x₀⁻¹ := by rw [hperiod]
+      _ = 1 := by rw [mul_inv_cancel₀ hx₀]
+  have a_eq_one : a = 1 := (pow_eq_one_iff_of_nonneg ha_nonneg hN.ne').mp eq_one
+  exact ha_ne_one a_eq_one
 
 --------------------------------------------------------------------------------
 -- 2D rotation: inherently complex-like
