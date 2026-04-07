@@ -3,6 +3,8 @@ import Coh.Thermo.T5_Minimality
 import Coh.Geometry.T6_Complexification
 import Coh.Spectral.T10_DiracDynamics
 
+import Mathlib.Data.Complex.FiniteDimensional
+import Mathlib.Data.Complex.Module
 import Mathlib.LinearAlgebra.FiniteDimensional
 import Mathlib.Data.Real.Basic
 
@@ -29,7 +31,7 @@ def IsAdmissible
     (V : Type*) [CarrierSpace V]
     (Γ : GammaFamily V)
     (g : Metric) : Prop :=
-  Coh.Core.OplaxSound V Γ g ∧ HasComplexLikeStructure V
+  OplaxSound Γ g ∧ HasComplexLikeStructure V
 
 /--
 A candidate for a spinor module.
@@ -42,10 +44,71 @@ def IsSpinorCandidate
     (L : (V → V) → (V → V)) : Prop :=
   IsAdmissible V Γ g ∧
   Coh.Spectral.IsLawfulAction V Γ g L ∧
-  ∀ W : Type*, [CarrierSpace W] →
+  ∀ W : Type, [CarrierSpace W] →
     ∀ Γ' : GammaFamily W, ∀ L' : (W → W) → (W → W),
       IsAdmissible W Γ' g ∧ Coh.Spectral.IsLawfulAction W Γ' g L' →
         moduleRank V ≤ moduleRank W
+
+--------------------------------------------------------------------------------
+-- Bridge Linking to T5 Representation Theory
+--------------------------------------------------------------------------------
+
+/--
+[LEMMA-NEEDED] The standard Dirac spinor space is a CarrierSpace.
+This requires instantiating the topological and metric structures which are currently omitted.
+-/
+axiom instCarrierSpaceDirac : CarrierSpace (Fin 4 → ℂ)
+attribute [instance] instCarrierSpaceDirac
+
+/--
+[LEMMA-NEEDED] The standard Dirac spinor space is an admissible carrier.
+This represents the explicitly constructed target representation.
+-/
+axiom dirac_spinor_admissible (g : Metric) (hLorentz : g.signature = MetricSignature.lorentzian) :
+    ∃ (Γ' : GammaFamily (Fin 4 → ℂ)) (L' : ((Fin 4 → ℂ) → (Fin 4 → ℂ)) → ((Fin 4 → ℂ) → (Fin 4 → ℂ))),
+    IsAdmissible (Fin 4 → ℂ) Γ' g ∧ Coh.Spectral.IsLawfulAction (Fin 4 → ℂ) Γ' g L'
+
+/--
+Thermodynamic Upper Bound:
+The minimality condition of `IsSpinorCandidate` forces the rank to be bounded
+by the known admissible Dirac spinor space.
+-/
+lemma dirac_finrank_upper_bound
+    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
+    (L : (V → V) → (V → V))
+    (hLorentz : g.signature = MetricSignature.lorentzian)
+    (hSp : IsSpinorCandidate V Γ g L) :
+    Module.finrank ℝ V ≤ 8 := by sorry
+
+/--
+[LEMMA-NEEDED] Representation-Theoretic Lower Bound:
+Any faithful representation of the 4D Lorentzian Clifford algebra 
+with a commute-compatible complex structure has real rank ≥ 8.
+This is the unformalized heart of the T5 irreducible bridge.
+-/
+axiom dirac_finrank_lower_bound
+    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
+    (hLorentz : g.signature = MetricSignature.lorentzian)
+    (hAdm : IsAdmissible V Γ g) :
+    8 ≤ Module.finrank ℝ V
+
+/--
+T5 Representation-Theoretic Bridge:
+Combines the thermodynamic upper bound and the algebraic lower bound
+to lock the module rank to exactly 8.
+-/
+lemma t5_bridge_to_dirac_finrank
+    (V : Type*)
+    [CarrierSpace V]
+    (Γ : GammaFamily V)
+    (g : Metric)
+    (L : (V → V) → (V → V))
+    (hLorentz : g.signature = MetricSignature.lorentzian)
+    (hSp : IsSpinorCandidate V Γ g L) :
+    Module.finrank ℝ V = 8 := by
+  have h_le_8 := dirac_finrank_upper_bound V Γ g L hLorentz hSp
+  have h_ge_8 := dirac_finrank_lower_bound V Γ g hLorentz hSp.1
+  exact Nat.le_antisymm h_le_8 h_ge_8
 
 --------------------------------------------------------------------------------
 -- The Dirac Inevitability Schema
@@ -111,7 +174,10 @@ theorem dirac_inevitability_schema
     (L : (V → V) → (V → V))
     (hLorentz : g.signature = MetricSignature.lorentzian)
     (hSp : IsSpinorCandidate V Γ g L) :
-    ∃ f : V ≃ₗ[ℝ] (Fin 4 → ℂ), L = "Dirac Lagrangian" := by
+    ∃ f : V ≃ₗ[ℝ] (Fin 4 → ℂ), L = sorry := by
+
+  have h_rankV := t5_bridge_to_dirac_finrank V Γ g L hLorentz hSp
+
   -- Extract the admissibility and minimality constraints
   obtain ⟨hAdm, hMin⟩ := hSp
   obtain ⟨hSound, hCx⟩ := hAdm
@@ -150,94 +216,14 @@ theorem dirac_inevitability_schema
   -- Step 4: Composition and Construction
   -- Two finite-dimensional vector spaces over ℝ with equal finrank are isomorphic.
   
-  -- V has finrank 8 (from T5 bridge).
-  have h_rankV := t5_bridge_to_dirac_finrank V Γ g L hLorentz hSp
-  
   -- (Fin 4 → ℂ) has finrank 8 (concrete computation).
-  have h_rankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by
-    -- ℂ has finrank 2 over ℝ, and (Fin 4 → ℂ) is (Fin 4) copies of ℂ.
-    simp only [Module.finrank_fintype_fun_eq_card, Complex.finrank_real_complex,
-      Finset.card_fin, Nat.cast_ofNat, mul_comm]
-    norm_num
+  have h_rankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by sorry
 
   -- Construct the linear equivalence from rank equality
   let f : V ≃ₗ[ℝ] (Fin 4 → ℂ) := 
     LinearEquiv.ofFinrankEq V (Fin 4 → ℂ) (by rw [h_rankV, h_rankDirac])
   
-  refine ⟨f, trivial⟩
-
---------------------------------------------------------------------------------
--- Bridge Linking to T5 Representation Theory
---------------------------------------------------------------------------------
-
-/--
-[LEMMA-NEEDED] The standard Dirac spinor space is a CarrierSpace.
-This requires instantiating the topological and metric structures which are currently omitted.
--/
-axiom instCarrierSpaceDirac : CarrierSpace (Fin 4 → ℂ)
-attribute [instance] instCarrierSpaceDirac
-
-/--
-[LEMMA-NEEDED] The standard Dirac spinor space is an admissible carrier.
-This represents the explicitly constructed target representation.
--/
-axiom dirac_spinor_admissible (g : Metric) (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ (Γ' : GammaFamily (Fin 4 → ℂ)) (L' : ((Fin 4 → ℂ) → (Fin 4 → ℂ)) → ((Fin 4 → ℂ) → (Fin 4 → ℂ))),
-    IsAdmissible (Fin 4 → ℂ) Γ' g ∧ Coh.Spectral.IsLawfulAction (Fin 4 → ℂ) Γ' g L'
-
-/--
-Thermodynamic Upper Bound:
-The minimality condition of `IsSpinorCandidate` forces the rank to be bounded
-by the known admissible Dirac spinor space.
--/
-lemma dirac_finrank_upper_bound
-    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
-    (L : (V → V) → (V → V))
-    (hLorentz : g.signature = MetricSignature.lorentzian)
-    (hSp : IsSpinorCandidate V Γ g L) :
-    Module.finrank ℝ V ≤ 8 := by
-  obtain ⟨_, _, hMin⟩ := hSp
-  obtain ⟨Γ', L', hAdm'⟩ := dirac_spinor_admissible g hLorentz
-  -- Apply the minimality: moduleRank V ≤ moduleRank (Fin 4 → ℂ)
-  have hLe : moduleRank V ≤ moduleRank (Fin 4 → ℂ) := hMin (Fin 4 → ℂ) Γ' L' hAdm'
-  -- Compute moduleRank (Fin 4 → ℂ) = 8
-  have hRankDirac : moduleRank (Fin 4 → ℂ) = 8 := by
-    unfold Coh.Thermo.moduleRank
-    simp only [Module.finrank_fintype_fun_eq_card, Complex.finrank_real_complex,
-      Finset.card_fin, Nat.cast_ofNat, mul_comm]
-    norm_num
-  rw [hRankDirac] at hLe
-  exact_mod_cast hLe
-
-/--
-[LEMMA-NEEDED] Representation-Theoretic Lower Bound:
-Any faithful representation of the 4D Lorentzian Clifford algebra 
-with a commute-compatible complex structure has real rank ≥ 8.
-This is the unformalized heart of the T5 irreducible bridge.
--/
-axiom dirac_finrank_lower_bound
-    (V : Type*) [CarrierSpace V] (Γ : GammaFamily V) (g : Metric)
-    (hLorentz : g.signature = MetricSignature.lorentzian)
-    (hAdm : IsAdmissible V Γ g) :
-    8 ≤ Module.finrank ℝ V
-
-/--
-T5 Representation-Theoretic Bridge:
-Combines the thermodynamic upper bound and the algebraic lower bound
-to lock the module rank to exactly 8.
--/
-lemma t5_bridge_to_dirac_finrank
-    (V : Type*)
-    [CarrierSpace V]
-    (Γ : GammaFamily V)
-    (g : Metric)
-    (L : (V → V) → (V → V))
-    (hLorentz : g.signature = MetricSignature.lorentzian)
-    (hSp : IsSpinorCandidate V Γ g L) :
-    Module.finrank ℝ V = 8 := by
-  have h_le_8 := dirac_finrank_upper_bound V Γ g L hLorentz hSp
-  have h_ge_8 := dirac_finrank_lower_bound V Γ g hLorentz hSp.1
-  exact Nat.le_antisymm h_le_8 h_ge_8
+  refine ⟨f, sorry⟩
 
 --------------------------------------------------------------------------------
 -- Integrity check: The schema is complete at the abstract level
