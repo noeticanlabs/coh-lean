@@ -316,8 +316,8 @@ Dirac_Inevitable_Schema
 
 1. **No `sorry` or `admit` in core theorems** — all proof obligations discharged
 2. **Four bridges fully implemented** — each with complete proofs, no placeholders
-3. **Capstone theorem proved** — Dirac_Inevitable_Schema executable
-4. **All modules compile** — `lake build` succeeds without errors
+3. **Capstone theorem proved** — Dirac_Inevitable_Schema in progress
+4. **All modules compile** — 🔴 BUILD BLOCKED (Mathlib import issue)
 5. **Documentation updated** — README clearly states what is proved
 6. **Test coverage** — Example applications in `Coh/Examples/MinimalWitness.lean` work
 

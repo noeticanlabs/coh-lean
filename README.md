@@ -56,15 +56,24 @@ If you use Nix with flakes enabled, you can enter a pre-configured environment:
 nix develop
 ```
 
-## ⚖️ Status: Phase 0.5d-e + Integration Complete
+## ⚖️ Status: Work in Progress - Build Blocked
 
-### ✅ Completed
-- **Phase 0.5d (Core/Minimality.lean)**: Thermodynamic cost, lifespan, and dominance foundations fully formalized with proofs.
-- **Phase 0.5e (Core/Complexification.lean)**: Complex-like structure (J operator), persistence, and periodicity barriers formalized.
-- **Integration (Coh.lean)**: All Core modules imported and integrated into the main umbrella module.
-- **Compilation**: All modules build successfully with no errors (only minor linter warnings about unused section variables).
+### Current State (as of 2026-04-07)
+- 🔴 **BUILD BLOCKED** — Missing Mathlib.Algebra.CliffordAlgebra.Basic import (Mathlib version mismatch)
+- The codebase contains a structural scaffold for the Dirac Inevitability proof with several proved theorems and some placeholder/schema declarations
+- Build was successful prior to Phase 4–7 work; current build fails due to dependency issue
 
-### 📋 Remaining Work
+### ✅ What Is Verified (Proved in Code)
+- **T3 (Kinematics)**: Proved forward direction (Clifford → oplax soundness), coercive visibility contradiction
+- **T5 (Thermodynamics)**: Proved rank ordering, cost comparison, lifespan bounds
+- **T6 (Geometry)**: Proved 1D periodicity barrier, 2D rotation is complex-like
+- **T7 (Visibility)**: Proved spectral gap via witness-based approach
+- **T9 (Gauge)**: Proved commutation implies gauge invariance theorem
+
+### 📋 Remaining Work (Proof Obligations)
+- **T10 (Dirac Dynamics)**: String schemas only — uniqueness not proved
+- **Bridge to Dirac spinor**: Schema composition, needs full proof
+- **Fix Mathlib import**: Resolve dependency issue to restore build
 This repository remains a **formal scaffold** for Phases 1-3:
 -   **Definitions**: Core structures are formally defined using Mathlib.
 -   **Theorems**: High-level theorem statements and bridges are present.

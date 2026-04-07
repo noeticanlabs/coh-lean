@@ -10,7 +10,7 @@
 
 ## The Mission
 
-Transform Coh Lean from a formal scaffold with `sorry`/`admit`/`True` placeholders into a **fully mechanized proof of Dirac Inevitability**.
+Transform Coh Lean from a formal scaffold with `sorry`/`admit`/`True` placeholders into a **mechanized proof of Dirac Inevitability** (work in progress).
 
 **No more polite lies.** Everything either proves or the compiler says no.
 
@@ -238,7 +238,7 @@ Coh/Examples/MinimalWitness.lean
 
 ### Expected Outcome
 
-A **fully mechanized, zero-placeholder proof** of Dirac Inevitability, with:
+A **mechanized, work-in-progress proof** of Dirac Inevitability, with:
 - Clean three-layer architecture
 - Enforced semantic unity (Rule of Ownership)
 - Composable, reusable theorem ladder

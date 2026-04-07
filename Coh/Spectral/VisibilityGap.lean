@@ -1,4 +1,4 @@
-ppppppppppppppppppppppppp????import Coh.Spectral.AnomalyWitnessLower
+import Coh.Spectral.AnomalyWitnessLower
 import Mathlib.Analysis.Normed.Module.Basic
 import Mathlib.Analysis.Normed.Group.BallSphere
 

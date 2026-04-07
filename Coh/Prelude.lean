@@ -1,4 +1,6 @@
 import Mathlib.Data.Real.Basic
+import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
@@ -101,9 +103,22 @@ This is the foundational class for all representation carriers in the Coh framew
 class CarrierSpace (V : Type*) extends
   NormedAddCommGroup V,
   NormedSpace ℝ V,
-  FiniteDimensional ℝ V
+  InnerProductSpace ℝ V where
+  finiteDimensional : FiniteDimensional ℝ V
 
+attribute [instance] CarrierSpace.finiteDimensional
+
+-- Default instances for standard types (noncomputable due to InnerProductSpace/RCLike dependencies)
 noncomputable instance : CarrierSpace ℝ where
+  toNormedAddCommGroup := inferInstance
+  toNormedSpace := inferInstance
+  toInnerProductSpace := inferInstance
+  finiteDimensional := inferInstance
+
 noncomputable instance : CarrierSpace (ℝ × ℝ) where
+  toNormedAddCommGroup := inferInstance
+  toNormedSpace := inferInstance
+  toInnerProductSpace := inferInstance
+  finiteDimensional := inferInstance
 
 end Coh

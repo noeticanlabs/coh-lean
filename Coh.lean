@@ -3,6 +3,10 @@ import Coh.Core.Clifford
 import Coh.Core.Oplax
 import Coh.Core.Minimality
 import Coh.Core.Complexification
+import Coh.Core.Chain
+import Coh.Core.Dynamics
+import Coh.Core.CliffordRep
+import Coh.Examples.DiracMatrixWitness
 import Coh.Kinematics.T3_CoerciveVisibility
 import Coh.Kinematics.T3_Necessity
 import Coh.Kinematics.T3_NonCliffordVisible
