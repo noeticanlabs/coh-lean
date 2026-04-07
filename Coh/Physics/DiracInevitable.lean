@@ -54,11 +54,19 @@ def IsSpinorCandidate
 --------------------------------------------------------------------------------
 
 /--
-[LEMMA-NEEDED] The standard Dirac spinor space is a CarrierSpace.
-This requires instantiating the topological and metric structures which are currently omitted.
+The standard Dirac spinor space Fin 4 → ℂ is a CarrierSpace.
+We construct this from Mathlib instances:
+- ℂ as a normed space (Complex.normedSpace)
+- Function space (Fin 4 → ℂ) inherits norm from ℂ
+- Finite dimensional real vector space (finrank 8)
+- Has all required CarrierSpace structure via typeclass inference.
 -/
-axiom instCarrierSpaceDirac : CarrierSpace (Fin 4 → ℂ)
-attribute [instance] instCarrierSpaceDirac
+noncomputable instance instCarrierSpaceDirac : CarrierSpace (Fin 4 → ℂ) := by
+  -- ℂ is a NormedAddCommGroup (via Complex.instNormedAddCommGroup)
+  -- ℂ is a NormedSpace ℝ (via Complex.normedSpace)
+  -- Function space (Fin 4 → ℂ) is a NormedAddCommGroup (via Pi.normedAddCommGroup)
+  -- Function space is FiniteDimensional over ℝ (via FiniteDimensional.of_fintype)
+  infer_instance
 
 /--
 [LEMMA-NEEDED] The standard Dirac spinor space is an admissible carrier.
@@ -82,7 +90,7 @@ lemma dirac_finrank_upper_bound
 
 /--
 [LEMMA-NEEDED] Representation-Theoretic Lower Bound:
-Any faithful representation of the 4D Lorentzian Clifford algebra 
+Any faithful representation of the 4D Lorentzian Clifford algebra
 with a commute-compatible complex structure has real rank ≥ 8.
 This is the unformalized heart of the T5 irreducible bridge.
 -/
@@ -215,14 +223,14 @@ theorem dirac_inevitability_schema
 
   -- Step 4: Composition and Construction
   -- Two finite-dimensional vector spaces over ℝ with equal finrank are isomorphic.
-  
+
   -- (Fin 4 → ℂ) has finrank 8 (concrete computation).
   have h_rankDirac : Module.finrank ℝ (Fin 4 → ℂ) = 8 := by sorry
 
   -- Construct the linear equivalence from rank equality
-  let f : V ≃ₗ[ℝ] (Fin 4 → ℂ) := 
+  let f : V ≃ₗ[ℝ] (Fin 4 → ℂ) :=
     LinearEquiv.ofFinrankEq V (Fin 4 → ℂ) (by rw [h_rankV, h_rankDirac])
-  
+
   refine ⟨f, sorry⟩
 
 --------------------------------------------------------------------------------

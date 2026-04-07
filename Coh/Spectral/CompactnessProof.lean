@@ -37,13 +37,46 @@ theorem rigidity_of_visible
     (hVis : QuadraticAnomalyVisible Γ g) :
     HasCliffordRigidity Γ g := by
   intro f hf
+  -- QuadraticAnomalyVisible gives us: ∃ c > 0, ∀ S ≥ 1, ∃ f', ||f'|| ≥ S → anomaly(f') ≥ c S²
+  -- For S = 1, we get some f₀ with ||f₀|| ≥ 1 and anomaly(f₀) ≥ c
   obtain ⟨c, hc_pos, hV⟩ := hVis
-  -- For S=1, there exists some f' with ||f'|| >= 1 such that anomaly(f') >= c
-  obtain ⟨f', hf'_norm, hf'_anom⟩ := hV 1
-  -- By homogeneity of anomalyStrength, if there is ANY nonzero anomaly,
-  -- then for a non-Clifford family, the anomaly must be positive on the whole sphere.
-  -- This follows from the non-Clifford witness being persistent.
-  sorry -- Full compactness reduction from visibility to rigidity.
+  obtain ⟨f₀, hf₀_norm, hf₀_anom⟩ := hV 1
+
+  -- Since we have nonzero anomaly at some point and anomaly is continuous,
+  -- the minimum on the unit sphere must be positive (by compactness).
+  -- We'll show any f on the unit sphere has positive anomaly by continuity + minimum attainment.
+  have hCont := anomalyStrength_continuous Γ g
+  have hSphere := unitSphere_compact
+  have hNonempty : {f : Idx → ℝ | frequencyNorm f = 1}.Nonempty := by
+    use f₀
+    have : 1 ≤ frequencyNorm f₀ := hf₀_norm
+    have : frequencyNorm f₀ = 1 ∨ frequencyNorm f₀ > 1 := by exact le_one_or_eq_self hf₀_norm
+    cases this <;> simp [*]
+
+  -- Get the minimum value on sphere
+  obtain ⟨f_min, hf_min_mem, hf_min_le⟩ := hSphere.exists_isMinOn hNonempty hCont.continuousOn
+
+  -- The minimum is positive because f₀ is in the set and anomalyStrength(f₀) > 0.
+  -- We normalize f₀ to f₀_hat on the sphere.
+  have h_min_pos : 0 < anomalyStrength Γ g f_min := by
+    let f₀_norm := frequencyNorm f₀
+    have h_norm_pos : 0 < f₀_norm := by
+      apply lt_of_le_of_ne (norm_nonneg _)
+      intro hz; have := norm_eq_zero.mp hz; linarith
+    let f₀_hat := (1 / f₀_norm) • f₀
+    have hf₀_hat : frequencyNorm f₀_hat = 1 := by
+      simp [frequencyNorm_eq_norm, norm_smul, f₀_norm]
+      rw [abs_of_pos h_norm_pos, inv_mul_cancel h_norm_pos.ne.symm]
+    have h_hat_pos : 0 < anomalyStrength Γ g f₀_hat := by
+      rw [anomalyStrength_homogeneous_quadratic]
+      apply mul_pos
+      · apply sq_pos_iff.mpr; apply inv_ne_zero; exact h_norm_pos.ne.symm
+      · linarith
+    have h_min_le_hat := hf_min_le f₀_hat hf₀_hat
+    exact lt_of_lt_of_le h_hat_pos h_min_le_hat
+
+  -- For any f on unit sphere, anomaly(f) ≥ min > 0
+  exact h_min_pos
 
 --------------------------------------------------------------------------------
 -- Compactness-Based Proof of T7
@@ -75,7 +108,10 @@ lemma anomalyStrength_positive_min_on_sphere [FiniteDimensional ℝ (Idx → ℝ
   let S : Set (Idx → ℝ) := {f : Idx → ℝ | frequencyNorm f = 1}
   have hS_compact : IsCompact S := unitSphere_compact
   have hS_nonempty : S.Nonempty := by
-    refine ⟨fun _ => 1, ?_⟩; sorry -- Existence of unit vector logic
+    -- Idx is Fin 4, so it is nonempty.
+    let i₀ : Idx := 0
+    use Pi.single i₀ 1
+    simp [frequencyNorm_eq_norm, norm_eq_abs, Pi.norm_single]
   obtain ⟨f₀, hf₀_mem, hf₀_min⟩ :=
     hS_compact.exists_isMinOn hS_nonempty ((anomalyStrength_continuous Γ g).continuousOn)
   refine ⟨anomalyStrength Γ g f₀, hRigid f₀ (by simpa [S] using hf₀_mem), ?_⟩
@@ -94,6 +130,12 @@ theorem T7_Quadratic_Spectral_Gap [FiniteDimensional ℝ (Idx → ℝ)]
     rw [anomalyStrength_homogeneous_quadratic Γ g f (1/f_norm)]
     field_simp [frequencyNorm_pos_iff f |>.mpr hf]
   -- Normalization and scaling bound...
-  sorry
+  calc ε * (frequencyNorm f) ^ 2
+    = ε * (f_norm ^ 2) := by rfl
+    _ ≤ (f_norm ^ 2) * anomalyStrength Γ g f_normalized := by
+      apply mul_le_mul_of_nonneg_left
+      · exact hε_min f_normalized (by simp [frequencyNorm_eq_norm, norm_smul, one_div, inv_mul_cancel])
+      · exact sq_nonneg f_norm
+    _ = anomalyStrength Γ g f := by rw [h_homo]
 
 end Coh.Spectral

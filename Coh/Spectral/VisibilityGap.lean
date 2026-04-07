@@ -1,4 +1,4 @@
-import Coh.Spectral.AnomalyWitnessLower
+ppppppppppppppppppppppppp????import Coh.Spectral.AnomalyWitnessLower
 import Mathlib.Analysis.Normed.Module.Basic
 import Mathlib.Analysis.Normed.Group.BallSphere
 
@@ -41,7 +41,11 @@ theorem T7_Visibility_Spectral_Gap (hNotCl : ¬ IsClifford Γ g) :
   -- a uniform lower bound on the unit sphere by the Extreme Value Theorem
   -- on the subset of non-Clifford representations.
   -- Here we deliver the formal certificate of visibility.
-  sorry -- Unit sphere reduction for witness visibility.
+  have hRigid : HasCliffordRigidity Γ g := rigidity_of_visible Γ g hVis
+  obtain ⟨ε, hε_pos, hGap⟩ := T7_Quadratic_Spectral_Gap Γ g hRigid
+  use ε, hε_pos
+  intro fi hfi
+  exact hGap fi hfi
 
 /--
 Corollary: Mismatch has minimum detectable magnitude.

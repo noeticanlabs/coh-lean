@@ -26,6 +26,25 @@ def IsClifford : Prop :=
 def cliffordMismatchAt (μ ν : Idx) : V →L[ℝ] V :=
   anticommutator (Γ.Γ μ) (Γ.Γ ν) - (2 * g.g μ ν) • idOp
 
+/-- Symmetry of the Clifford mismatch operator. -/
+lemma cliffordMismatchAt_symm (μ ν : Idx) :
+    cliffordMismatchAt Γ g μ ν = cliffordMismatchAt Γ g ν μ := by
+  unfold cliffordMismatchAt anticommutator
+  rw [g.symm]
+  rw [add_comm]
+
+/-- Bridge between global Clifford predicate and local mismatch operators. -/
+lemma isClifford_iff_mismatch_zero :
+    IsClifford Γ g ↔ ∀ μ ν : Idx, cliffordMismatchAt Γ g μ ν = 0 := by
+  constructor
+  · intro h μ ν
+    unfold cliffordMismatchAt
+    rw [h μ ν, sub_self]
+  · intro h μ ν
+    unfold cliffordMismatchAt at h
+    rw [← sub_eq_zero]
+    exact h μ ν
+
 /-- A specific index pair is a mismatch witness if the Clifford relation fails there. -/
 def IsMismatchWitness (μ ν : Idx) : Prop :=
   cliffordMismatchAt Γ g μ ν ≠ 0
