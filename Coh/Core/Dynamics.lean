@@ -18,7 +18,8 @@ to avoid analytic overhead while the kernel is frozen.
 Geometric Velocity: A pairing of a state and a proposed motion.
 [NBCP] Lighter abstraction than full calculus machinery.
 -/
-structure GeometricVelocity (V : Type*) [CarrierSpace V] where
+structure GeometricVelocity (V : Type*) 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] where
   state : V
   motion : V
 
@@ -26,7 +27,8 @@ structure GeometricVelocity (V : Type*) [CarrierSpace V] where
 Dissipation / Metabolic Spend for a continuous velocity.
 [INVARIANT] strictly non-negative.
 -/
-def continuousSpend {V : Type*} [CarrierSpace V] 
+def continuousSpend {V : Type*} 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
     (gv : GeometricVelocity V) : ℝ :=
   -- In a concrete model, this would be ‖v‖² or a metric-weighted cost.
   ‖gv.motion‖
@@ -35,7 +37,8 @@ def continuousSpend {V : Type*} [CarrierSpace V]
 Risk Barrier Cone: The set of velocities that points "inward" (Potential non-increase).
 $\langle \nabla \Phi(x), v \rangle \leq - \mathcal{C}(x, v) + \mathcal{A}(t)$
 -/
-def InRiskBarrierCone {V : Type*} [CarrierSpace V]
+def InRiskBarrierCone {V : Type*} 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (obj : CohObject V) (v : V) (gradV : V) (authority : ℝ) : Prop :=
   inner gradV v ≤ -continuousSpend ⟨obj.state, v⟩ + authority
 
@@ -52,7 +55,8 @@ Continuous-to-Discrete Bridge (Schema).
 A governed geometric velocity over an infinitesimal interval ε 
 corresponds to a discrete Receipt.
 -/
-theorem velocity_to_receipt_bridge {V : Type*} [CarrierSpace V]
+theorem velocity_to_receipt_bridge {V : Type*} 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (obj : CohObject V) (v : V) (gradV : V) (auth : ℝ) (ε : ℝ)
     (hε : 0 < ε)
     (hCone : InRiskBarrierCone obj v gradV auth) :

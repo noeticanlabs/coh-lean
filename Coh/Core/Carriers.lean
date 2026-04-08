@@ -7,13 +7,24 @@ universe u v
 
 open Coh
 
-/-- A lawful carrier space encapsulates both the algebraic structure and its dimension. -/
+/-- 
+A lawful carrier space encapsulates both the algebraic structure and its dimension. 
+Bundle-ing the necessary instances for NormedSpace and InnerProductSpace to 
+satisfy the CarrierSpace requirements.
+-/
 structure LawfulCarrier where
   Space : Type u
+  [inst_add : NormedAddCommGroup Space]
+  [inst_space : NormedSpace ℝ Space]
+  [inst_inner : InnerProductSpace ℝ Space]
   inst : CarrierSpace Space
   rank : ℕ
   rank_eq : rank = Module.finrank ℝ Space
 
+/-- Ensure instances are visible when working with a LawfulCarrier. -/
+instance (C : LawfulCarrier) : NormedAddCommGroup C.Space := C.inst_add
+instance (C : LawfulCarrier) : NormedSpace ℝ C.Space := C.inst_space
+instance (C : LawfulCarrier) : InnerProductSpace ℝ C.Space := C.inst_inner
 instance (C : LawfulCarrier) : CarrierSpace C.Space := C.inst
 
 /-- Helper to extract dimension from a lawful carrier. -/
@@ -46,11 +57,5 @@ lemma dim_preserved_under_equivalence
   rcases h with ⟨f, _⟩
   rw [LawfulCarrier.dim, LawfulCarrier.dim, C.rank_eq, D.rank_eq]
   exact LinearEquiv.finrank_eq f
-
-/-- The real line as a carrier space. -/
-noncomputable instance : CarrierSpace ℝ := { }
-
-/-- The real plane as a carrier space. -/
-noncomputable instance : CarrierSpace (ℝ × ℝ) := { }
 
 end Coh.Core

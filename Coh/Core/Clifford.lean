@@ -7,7 +7,7 @@ namespace Coh.Core
 open scoped BigOperators
 open Coh
 
-variable {V : Type*} [CarrierSpace V]
+variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
 variable (Γ : GammaFamily V) (g : Metric)
 
 /-- Identity operator as a continuous linear map. -/
@@ -81,20 +81,10 @@ theorem oplaxSound_of_clifford
 
 --------------------------------------------------------------------------------
 -- Anomaly Bilinearity: Fundamental Structural Properties
---
--- The anomaly operator is bilinear in the frequency profile f, hence the
--- anomaly strength (norm of the anomaly) scales quadratically with frequency.
--- These are foundational properties used throughout Spectral phase proofs.
 --------------------------------------------------------------------------------
 
 /--
 Anomaly bilinearity (left): scalar multiplication.
-
-The anomaly at scaled frequency (c • f) equals the square of the scalar times
-the anomaly at f. This follows from the definition: each term (c*f_μ)*(c*f_ν)
-contributes c² to every summand.
-
-This is the key structural property enabling the quadratic spectral gap.
 -/
 lemma anomaly_smul_left (c : ℝ) (f : Idx → ℝ) :
     anomaly Γ g (c • f) = (c ^ 2) • anomaly Γ g f := by
@@ -120,11 +110,6 @@ lemma anomaly_smul_left (c : ℝ) (f : Idx → ℝ) :
 
 /--
 Anomaly strength homogeneity: quadratic scaling.
-
-The strength (norm) of the anomaly scales quadratically with scalar multiple:
-‖anomaly Γ g (c • f)‖ = c² · ‖anomaly Γ g f‖.
-
-This follows from the scalar multiplication homogeneity of the norm.
 -/
 lemma anomaly_homogeneous_quadratic (c : ℝ) (f : Idx → ℝ) :
     ‖anomaly Γ g (c • f)‖ = (c ^ 2) * ‖anomaly Γ g f‖ := by

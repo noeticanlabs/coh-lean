@@ -9,7 +9,7 @@ namespace Coh.Kinematics
 open Coh Coh.Core
 open scoped BigOperators Real
 
-variable {V : Type*} [CarrierSpace V]
+variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
 
 --------------------------------------------------------------------------------
 -- Canonical coordinate frequency families

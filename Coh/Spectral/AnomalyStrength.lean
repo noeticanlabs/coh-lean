@@ -7,7 +7,7 @@ namespace Coh.Spectral
 
 open Coh.Core
 
-variable {V : Type*} [CarrierSpace V]
+variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
 variable (Γ : GammaFamily V) (g : Metric)
 
 def anomalyStrength (f : Idx → ℝ) : ℝ := ‖anomaly Γ g f‖
@@ -50,12 +50,12 @@ since `anomalyStrength` is homogeneous of degree 2 in `f`.
 def HasMinimumAnomalyEnergy : Prop :=
   ∃ ε > 0, ∀ f : Idx → ℝ, frequencyNorm f = 1 → ε ≤ anomalyStrength Γ g f
 
-lemma uniformGap_implies_anomalyBound : HasUniformSpectralGap Γ g → HasAnomalyBound Γ g := fun ⟨c₀, hc₀, h⟩ => ⟨c₀, hc₀, h⟩
+lemma uniformGap_implies_anomalyBound (h : HasUniformSpectralGap Γ g) : HasAnomalyBound Γ g := h
 
 -- An anomaly bound immediately yields a positive lower bound on the unit frequency sphere.
-lemma anomalyBound_implies_minimumEnergy :
-    HasAnomalyBound Γ g → HasMinimumAnomalyEnergy Γ g := by
-  rintro ⟨κ, hκ_pos, hbound⟩
+lemma anomalyBound_implies_minimumEnergy
+    (h : HasAnomalyBound Γ g) : HasMinimumAnomalyEnergy Γ g := by
+  obtain ⟨κ, hκ_pos, hbound⟩ := h
   refine ⟨κ, hκ_pos, ?_⟩
   intro f hf_unit
   have hf_ne : f ≠ (fun _ => 0) := by

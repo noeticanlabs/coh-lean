@@ -11,7 +11,7 @@ A certified internal symmetry gauge action over a carrier space.
 This abstracts the necessary properties for stability-adjusted minimality (T8)
 without requiring full differential geometry or principal bundles.
 -/
-class GaugeCertification (G : Type*) (V : Type*) [CarrierSpace V] where
+class GaugeCertification (G : Type*) (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] where
   benefit : ℝ
   benefit_pos : 0 < benefit
   act : G → V →L[ℝ] V

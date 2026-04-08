@@ -12,7 +12,7 @@ namespace Coh.Spectral
 open Coh Coh.Core Coh.Kinematics
 open scoped BigOperators Real
 
-variable {V : Type u} [CarrierSpace V]
+variable {V : Type u} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
 variable (Γ : GammaFamily V) (g : Metric)
 
 /--
@@ -58,27 +58,27 @@ theorem QuadraticAnomalyVisible_of_diagonal_witness
   use axisSpike μ₀ R
   constructor
   · dsimp [freqNorm]
-    rw [frequencyNorm_axisSpike_val Γ g μ₀ R, abs_of_pos hR_pos]
+    rw [frequencyNorm_axisSpike_val μ₀ R, abs_of_pos hR_pos]
     unfold R; split_ifs <;> linarith
   · dsimp [freqNorm, M]
     rw [anomaly_axisSpike_eq Γ g μ₀ R]
-    rw [norm_smul (R^2) (cliffordMismatchAt Γ g μ₀ μ₀), Real.norm_of_nonneg (sq_nonneg R)]
+    rw [norm_smul (R^2) M, Real.norm_of_nonneg (sq_nonneg R)]
     ring_nf; apply le_refl
 
 /--
 Lemma 4: Formal sum expansion for off-diagonal pairSpike.
 -/
 lemma anomaly_pairSpike_sum_expansion (μ ν : Idx) (R : ℝ) (hμν : μ ≠ ν) :
-    anomaly Γ g (pairSpike μ ν R) = 
-    (R^2) • (cliffordMismatchAt Γ g μ μ + 
-             cliffordMismatchAt Γ g μ ν + 
-             cliffordMismatchAt Γ g ν μ + 
+    anomaly Γ g (pairSpike μ ν R) =
+    (R^2) • (cliffordMismatchAt Γ g μ μ +
+             cliffordMismatchAt Γ g μ ν +
+             cliffordMismatchAt Γ g ν μ +
              cliffordMismatchAt Γ g ν ν) := by
   unfold anomaly pairSpike
   change (∑ i, ∑ j, ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) = _
-  
+
   -- The smaller set on the LHS, bigger on the RHS for `Finset.sum_subset`
-  have h_split_i : (∑ i ∈ ({μ, ν} : Finset Idx), ∑ j, ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) = 
+  have h_split_i : (∑ i ∈ ({μ, ν} : Finset Idx), ∑ j, ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) =
     (∑ i, ∑ j, ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) := by
     apply Finset.sum_subset
     · apply Finset.subset_univ
@@ -89,8 +89,8 @@ lemma anomaly_pairSpike_sum_expansion (μ ν : Idx) (R : ℝ) (hμν : μ ≠ ν
       simp [hi1, hi2]
   rw [← h_split_i]
 
-  have h_split_j : ∀ i ∈ ({μ, ν} : Finset Idx), 
-    (∑ j ∈ ({μ, ν} : Finset Idx), ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) = 
+  have h_split_j : ∀ i ∈ ({μ, ν} : Finset Idx),
+    (∑ j ∈ ({μ, ν} : Finset Idx), ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) =
     (∑ j, ((if i = μ then R else if i = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g i j) := by
     intro i _
     apply Finset.sum_subset
@@ -101,13 +101,13 @@ lemma anomaly_pairSpike_sum_expansion (μ ν : Idx) (R : ℝ) (hμν : μ ≠ ν
       have hj2 : j ≠ ν := hj.2
       simp [hj1, hj2]
 
-  have h_combine : (∑ x ∈ ({μ, ν} : Finset Idx), ∑ j ∈ ({μ, ν} : Finset Idx), ((if x = μ then R else if x = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g x j) = 
+  have h_combine : (∑ x ∈ ({μ, ν} : Finset Idx), ∑ j ∈ ({μ, ν} : Finset Idx), ((if x = μ then R else if x = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g x j) =
     ∑ x ∈ ({μ, ν} : Finset Idx), ∑ j, ((if x = μ then R else if x = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g x j := by
     apply Finset.sum_congr rfl
     exact h_split_j
   rw [← h_combine]
 
-  have h_expand_i : ∑ x ∈ ({μ, ν} : Finset Idx), ∑ j ∈ ({μ, ν} : Finset Idx), ((if x = μ then R else if x = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g x j = 
+  have h_expand_i : ∑ x ∈ ({μ, ν} : Finset Idx), ∑ j ∈ ({μ, ν} : Finset Idx), ((if x = μ then R else if x = ν then R else 0) * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g x j =
     (∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g μ j)) +
     (∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g ν j)) := by
     rw [Finset.sum_insert (by intro h; apply hμν; exact Finset.mem_singleton.mp h)]
@@ -120,18 +120,18 @@ lemma anomaly_pairSpike_sum_expansion (μ ν : Idx) (R : ℝ) (hμν : μ ≠ ν
       intro j _
       have hnm : ν ≠ μ := hμν.symm
       simp [hnm]
-      
+
   rw [h_expand_i]
 
   have hnm : ν ≠ μ := hμν.symm
 
-  have h_expand_j1 : ∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g μ j) = 
+  have h_expand_j1 : ∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g μ j) =
     (R * R) • cliffordMismatchAt Γ g μ μ + (R * R) • cliffordMismatchAt Γ g μ ν := by
     rw [Finset.sum_insert (by intro h; apply hμν; exact Finset.mem_singleton.mp h)]
     rw [Finset.sum_singleton]
     simp [hnm, hμν]
 
-  have h_expand_j2 : ∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g ν j) = 
+  have h_expand_j2 : ∑ j ∈ ({μ, ν} : Finset Idx), ((R * (if j = μ then R else if j = ν then R else 0)) • cliffordMismatchAt Γ g ν j) =
     (R * R) • cliffordMismatchAt Γ g ν μ + (R * R) • cliffordMismatchAt Γ g ν ν := by
     rw [Finset.sum_insert (by intro h; apply hμν; exact Finset.mem_singleton.mp h)]
     rw [Finset.sum_singleton]
@@ -159,28 +159,15 @@ theorem QuadraticAnomalyVisible_of_mismatch
     · -- Off-diagonal Case. Diagonals are zero.
       let c₀ := 2 * ‖M_uv‖
       have hc₀ : 0 < c₀ := by
-        apply mul_pos (by norm_num)
-        apply lt_of_le_of_ne (norm_nonneg _)
-        intro hz; have h_zero : M_uv = 0 := norm_eq_zero.mp hz
-        exact hM_uv_nz h_zero
-      refine ⟨c₀, hc₀, ?_⟩
-      intro S
-      let R : ℝ := if 1 ≤ S then S else 1
-      have hR_pos : 0 < R := by split_ifs <;> linarith
-      have hμν : μ ≠ ν := by intro h; rw [h] at h_diag_μ; contradiction
-      haveI : Nonempty Idx := inferInstance
-      have h_fn : ‖pairSpike μ ν R‖ = |R| := by
-        rw [← frequencyNorm_eq_norm]
-        unfold frequencyNorm pairSpike
-        rw [Pi.norm_def]
-        have h_max : Finset.univ.sup' Finset.univ_nonempty (fun i => |if i = μ then R else if i = ν then R else 0|) = |R| := by
-           apply le_antisymm
-           · apply Finset.sup'_le; intro i _; split_ifs <;> simp [le_refl]
-           · apply Finset.le_sup' _ (Finset.mem_univ μ); simp
-        rw [Finset.sup_eq_sup' Finset.univ_nonempty, h_max]
+          have h_fn : ‖pairSpike μ ν R‖ = |R| := by
+        simp [frequencyNorm_eq_norm, pairSpike, frequencyNorm, Pi.norm_def]
+        simp only [abs_if, abs_zero]
+        apply le_antisymm
+        · apply Finset.sup_le; intro i _; split_ifs <;> simp [le_refl]
+        · apply Finset.le_sup (Finset.mem_univ μ); simp
       use pairSpike μ ν R
       constructor
-      · rw [h_fn, abs_of_pos hR_pos]
+      · rw [frequencyNorm_eq_norm, h_fn, abs_of_pos hR_pos]
         unfold R; split_ifs <;> linarith
       · -- Goal 2: c₀ * (frequencyNorm f) ^ 2 ≤ anomalyStrength f
         -- Result of expansion:
@@ -193,19 +180,34 @@ theorem QuadraticAnomalyVisible_of_mismatch
           rw [hμ0, hν0, cliffordMismatchAt_symm Γ g ν μ]
           simp only [smul_add, smul_zero, add_zero, zero_add]
           rw [← add_smul, ← two_mul]
-        
+ 
         -- c₀ = 2 * ‖cliffordMismatchAt Γ g μ ν‖
         -- frequencyNorm (pairSpike μ ν R) = |R|
         -- anomaly (pairSpike μ ν R) = (2 * R^2) • cliffordMismatchAt Γ g μ ν
         have h_abs_2r2 : ‖2 * R ^ 2‖ = 2 * R ^ 2 := by
           apply abs_of_nonneg; apply mul_nonneg; norm_num; exact sq_nonneg R
-        
-        dsimp [c₀, M_uv]
-        rw [h_fn, h_total, sq_abs]
-        have h_smul : ‖(2 * R ^ 2) • cliffordMismatchAt Γ g μ ν‖ = ‖2 * R ^ 2‖ * ‖cliffordMismatchAt Γ g μ ν‖ := norm_smul _ _
+ 
+        apply le_of_eq
+        rw [h_total]
+        have h_smul : ‖(2 * R ^ 2) • cliffordMismatchAt Γ g μ ν‖ = ‖2 * R ^ 2‖ * ‖cliffordMismatchAt Γ g μ ν‖ :=
+          norm_smul (2 * R ^ 2) (cliffordMismatchAt Γ g μ ν)
         rw [h_smul, h_abs_2r2]
+        rw [frequencyNorm_eq_norm, h_fn, sq_abs]
+        unfold c₀ M_uv
         ring
-        apply le_refl
+) = (2 * R^2) • cliffordMismatchAt Γ g μ ν
+        have h_abs_2r2 : ‖2 * R ^ 2‖ = 2 * R ^ 2 := by
+          apply abs_of_nonneg; apply mul_nonneg; norm_num; exact sq_nonneg R
+
+        apply le_of_eq
+        rw [h_total]
+        have h_smul : ‖(2 * R ^ 2) • cliffordMismatchAt Γ g μ ν‖ = ‖2 * R ^ 2‖ * ‖cliffordMismatchAt Γ g μ ν‖ :=
+          norm_smul (2 * R ^ 2) (cliffordMismatchAt Γ g μ ν)
+        rw [h_smul, h_abs_2r2]
+        unfold freqNorm frequencyNorm
+        rw [h_fn, sq_abs]
+        unfold c₀ M_uv
+        ring
 
 /--
 Replacement for T7: A non-Clifford family has visible Quadratic Anomaly.

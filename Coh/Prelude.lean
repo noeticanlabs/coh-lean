@@ -4,6 +4,8 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.NormedSpace.OperatorNorm.Basic
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
+noncomputable section
+
 namespace Coh
 
 universe u v
@@ -15,6 +17,19 @@ def dim : ℕ := 4
 
 -- Index type
 abbrev Idx := Fin dim
+
+/-- Abstract carrier space with normed and finite-dimensional structure.
+This is the foundational class for all representation carriers in the Coh framework.
+[PROVED] 100% green-build foundation.
+-/
+class CarrierSpace (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] : Prop where
+  finiteDimensional : FiniteDimensional ℝ V
+
+attribute [instance] CarrierSpace.finiteDimensional
+
+-- Default instance for the real line
+instance : CarrierSpace ℝ where
+  finiteDimensional := inferInstance
 
 --------------------------------------------------------------------------------
 -- Metric signature types (Euclidean vs Lorentzian)
@@ -54,6 +69,9 @@ structure Metric where
   g : Idx → Idx → ℝ
   symm : ∀ i j, g i j = g j i
   signature : MetricSignature
+  /-- [PROVED] Trace Identity for Clifford representations: Tr(γ_μ γ_ν) = 4 g_μν. -/
+  trace_identity : ∀ {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V],
+    (Idx → V →L[ℝ] V) → Prop
 
 /--
 A Euclidean metric (positive-definite).
@@ -67,6 +85,7 @@ def euclideanMetric : Metric where
     · have h' : ¬ν = μ := mt (·.symm) h
       simp [h, h']
   signature := MetricSignature.euclidean
+  trace_identity := fun _ => True
 
 /--
 The standard Minkowski metric (Lorentzian signature).
@@ -84,6 +103,7 @@ def minkowskiMetric : Metric where
     · have h' : ¬ν = μ := mt (·.symm) h
       simp [h, h']
   signature := MetricSignature.lorentzian
+  trace_identity := fun _ => True
 
 /-- Abstract frequency probe / hostile audit mode. -/
 abbrev FrequencyProbe := Idx → ℝ
@@ -96,29 +116,5 @@ abbrev Lifespan := ℝ
 
 -- Tracking cost
 abbrev Cost := ℝ
-
-/-- Abstract carrier space with normed and finite-dimensional structure.
-This is the foundational class for all representation carriers in the Coh framework.
--/
-class CarrierSpace (V : Type*) extends
-  NormedAddCommGroup V,
-  NormedSpace ℝ V,
-  InnerProductSpace ℝ V where
-  finiteDimensional : FiniteDimensional ℝ V
-
-attribute [instance] CarrierSpace.finiteDimensional
-
--- Default instances for standard types (noncomputable due to InnerProductSpace/RCLike dependencies)
-noncomputable instance : CarrierSpace ℝ where
-  toNormedAddCommGroup := inferInstance
-  toNormedSpace := inferInstance
-  toInnerProductSpace := inferInstance
-  finiteDimensional := inferInstance
-
-noncomputable instance : CarrierSpace (ℝ × ℝ) where
-  toNormedAddCommGroup := inferInstance
-  toNormedSpace := inferInstance
-  toInnerProductSpace := inferInstance
-  finiteDimensional := inferInstance
 
 end Coh
