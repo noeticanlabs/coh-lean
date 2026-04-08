@@ -33,6 +33,6 @@ theorem commutation_implies_gauge_invariance
   simp only [map_add, map_smul]
   rw [hA_ν, hA_μ, hA_μ, hA_ν]
   -- map_sub J x y = J x - J y
-  sorry
+  rfl
 
 end Coh.Spectral

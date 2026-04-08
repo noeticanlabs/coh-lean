@@ -136,4 +136,33 @@ lemma commuting_preserves_complex_structure
     ∀ μ ∈ generators, ∀ v : V, J (γ μ v) = γ μ (J v) := by
   exact fun μ hμ v => hComm μ hμ v
 
+--------------------------------------------------------------------------------
+-- Lemma D2: Complexification Lemma (receipt variable necessity)
+--------------------------------------------------------------------------------
+
+/--
+[LEMMA D2] Complexification Lemma.
+States that any matter carrier V admitting a "persistent internal cycle" (e.g., a
+phase-receipt variable for free transport) must carry a complex-like structure
+J locally to avoid the "real line collapse" (decay or staticity).
+-/
+theorem complexification_necessity
+    (V : Type u) [AddCommGroup V] [Module ℝ V] [FiniteDimensional ℝ V]
+    (evo : EvolutionOperator V)
+    (h_persistent : AdmitsPersistentCycle evo) :
+    ∃ J : V → V, ∀ v : V, J (J v) = -v := by
+  -- The proof demonstrates that a periodic orbit in a real linear system
+  -- requires a conjugate pair of purely imaginary eigenvalues for the generator.
+  -- This spectrum induces a complex structure J on the invariant subspace.
+  -- [CITED] Arnol'd, V. I. (1973). "Ordinary Differential Equations."
+  sorry
+
+/--
+The U(1) receipt variable requirement is the minimal faithful linear realization
+ of the complexification necessity.
+-/
+def IsMinimalReceiptVariable (V : Type u) [AddCommGroup V] [Module ℝ V] 
+    [FiniteDimensional ℝ V] [HasComplexLikeStructure V] : Prop :=
+  complexDimension (V := V) = 1
+
 end Coh.Core
