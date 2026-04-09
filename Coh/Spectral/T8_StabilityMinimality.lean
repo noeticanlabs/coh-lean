@@ -16,15 +16,18 @@ open Coh.Core
 /--
 The aggregate stability benefit extracted from the formal gauge certification.
 -/
-def stabilityBenefit (G : Type*) (V : Type*) [CarrierSpace V] [GaugeCertification G V] : ℝ := 
+def stabilityBenefit (G : Type*) (V : Type*) 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
+    [GaugeCertification G V] : ℝ := 
   GaugeCertification.benefit G V
 
 /--
 The stability-adjusted cost uses the trackingCost from T5_Minimality
 minus the provable certification benefit.
 -/
-def adjustedCost (G : Type*) (V : Type*) [CarrierSpace V] [GaugeCertification G V]
-    (p : MetabolicParams) : ℝ :=
+def adjustedCost (G : Type*) (V : Type*) 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
+    [GaugeCertification G V] (p : MetabolicParams) : ℝ :=
   p.κ * (Module.finrank ℝ V : ℝ) - stabilityBenefit G V
 
 --------------------------------------------------------------------
@@ -35,7 +38,9 @@ def adjustedCost (G : Type*) (V : Type*) [CarrierSpace V] [GaugeCertification G 
 T8.1: Generic Gauge Cost Certification
 If a symmetry family carries a certified stability benefit, then its benefit is strictly positive.
 -/
-theorem gauge_benefit_positive (G : Type*) (V : Type*) [CarrierSpace V] [inst : GaugeCertification G V] :
+theorem gauge_benefit_positive (G : Type*) (V : Type*) 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
+    [inst : GaugeCertification G V] :
     0 < stabilityBenefit G V := by
   exact inst.benefit_pos
 
@@ -45,8 +50,9 @@ If a symmetry family carries a certified stability benefit, then it survives
 the stability-adjusted minimality criterion by strictly reducing the thermodynamic cost.
 -/
 theorem cost_reduced_of_stabilityBenefit 
-    (G : Type*) (V : Type*) [CarrierSpace V] [GaugeCertification G V]
-    (p : MetabolicParams) :
+    (G : Type*) (V : Type*) 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
+    [GaugeCertification G V] (p : MetabolicParams) :
     adjustedCost G V p < p.κ * (Module.finrank ℝ V : ℝ) := by
   unfold adjustedCost
   have h_pos := gauge_benefit_positive G V

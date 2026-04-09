@@ -79,35 +79,6 @@ lemma norm_axisSpike_lower_ref
 -- Witness-targeted anomaly visibility interface
 --------------------------------------------------------------------------------
 
-/--
-A witness pair `(μ, ν)` is coercively visible if its associated mismatch can be
-amplified along a designated frequency family to produce quadratic anomaly growth.
--/
-def WitnessCoercivelyVisible
-    (Γ : GammaFamily V)
-    (g : Metric)
-    (μ ν : Idx) : Prop :=
-  ∃ c : ℝ, 0 < c ∧ ∀ R : ℝ, 0 < R →
-    c * (freqNorm (pairSpike μ ν R))^2 ≤ ‖anomaly Γ g (pairSpike μ ν R)‖
-
-/--
-Global witness visibility: every mismatch witness is coercively visible.
--/
-def AllMismatchWitnessesVisible
-    (Γ : GammaFamily V)
-    (g : Metric) : Prop :=
-  ∀ μ ν : Idx,
-    IsMismatchWitness Γ g μ ν →
-    WitnessCoercivelyVisible Γ g μ ν
-
-/--
-Quadratic anomaly visibility: there exist arbitrarily large frequency vectors
-with significant observable anomaly.
--/
-def QuadraticAnomalyVisible
-    (Γ : GammaFamily V)
-    (g : Metric) : Prop :=
-  ∃ c : ℝ, 0 < c ∧ ∀ S : ℝ, ∃ f : Idx → ℝ, S ≤ freqNorm f ∧
-    c * (freqNorm f)^2 ≤ ‖anomaly Γ g f‖
+-- [Consolidated into Coh.Core.Oplax]
 
 end Coh.Kinematics

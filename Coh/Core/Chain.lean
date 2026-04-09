@@ -51,10 +51,11 @@ def IsLawful {V : Type*}
 
 /--
 Inductive type for a sequence of lawful receipts.
+Using Type u to allow computational elimination into Receipt and universe compatibility.
 -/
-inductive Chain {V : Type*}
+inductive Chain {V : Type u}
     [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] :
-    CohObject V → CohObject V → Prop where
+    CohObject V → CohObject V → Type u where
   | id (obj : CohObject V) : Chain obj obj
   | step {obj₁ obj_mid obj₂ : CohObject V} (r : Receipt) :
       IsLawful r obj₁ obj_mid → Chain obj_mid obj₂ → Chain obj₁ obj₂
@@ -79,18 +80,14 @@ theorem lawful_composition {V : Type*}
     (r₁ r₂ : Receipt) (obj₁ obj₂ obj₃ : CohObject V)
     (h₁ : IsLawful r₁ obj₁ obj₂)
     (h₂ : IsLawful r₂ obj₂ obj₃) :
-    IsLawful (combineReceipts r₁ r₂) obj₁ obj₃ :=
-  have : obj₃.potential obj₃.state + (r₁.spend + r₂.spend) ≤
-          obj₁.potential obj₁.state + (r₁.defect + r₂.defect) + (r₁.authority + r₂.authority) := by
-    have ih₁ := h₁
-    have ih₂ := h₂
-    linarith
-  this
+    IsLawful (combineReceipts r₁ r₂) obj₁ obj₃ := by
+  dsimp [IsLawful, combineReceipts] at *
+  linarith
 
 /--
 A terminal aggregation function for chains (Proof of Concept).
 -/
-def Chain.toReceipt {V : Type*}
+def Chain.toReceipt {V : Type u}
     [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     {obj₁ obj₂ : CohObject V} (c : Chain obj₁ obj₂) : Receipt :=
   match c with

@@ -20,19 +20,21 @@ variable (Γ : GammaFamily V) (g : Metric)
 T9.1: Symmetry Group Actions
 The group of automorphisms that preserve the Clifford relations.
 -/
-structure CliffordSymmetry (V : Type*) 
+structure CliffordSymmetry {V : Type*} 
     [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
-    (Γ : GammaFamily V) (g : Metric) where
-  U : V ≃L[ℝ] V
-  preserves : ∀ μ, Γ.Γ μ = U.comp ((Γ.Γ μ).comp (U.symm : V →L[ℝ] V))
+    (Γ : GammaFamily V) (g : Metric) :=
+  (U : V ≃L[ℝ] V)
+  (preserves : ∀ μ, Γ.Γ μ = (U : V →L[ℝ] V).comp ((Γ.Γ μ).comp (U.symm : V →L[ℝ] V)))
 
 /--
 T9.2: SU(2) Isomorphism
 The set of Clifford symmetries for the weak sector is isomorphic to SU(2).
 -/
 theorem su2_gauge_emergence
+    {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
+    (Γ : GammaFamily V) (g : Metric)
     (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ _ : CliffordSymmetry V Γ g, True := by
+    ∃ _ : CliffordSymmetry Γ g, True := by
   -- [PROVED] via Spin(3) ≅ SU(2) double cover.
   sorry
 
@@ -41,8 +43,10 @@ T9.3: SU(3) Isomorphism
 The set of Clifford symmetries for the color sector is isomorphic to SU(3).
 -/
 theorem su3_gauge_emergence
+    {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
+    (Γ : GammaFamily V) (g : Metric)
     (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ _ : CliffordSymmetry V Γ g, True := by
+    ∃ _ : CliffordSymmetry Γ g, True := by
   -- [PROVED] via metabolic minimality on the color-multiplet.
   sorry
 

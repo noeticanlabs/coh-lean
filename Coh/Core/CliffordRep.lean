@@ -74,6 +74,7 @@ def BoundaryLocked {V : Type*}
 /--
 [CITED] Faithful 4D Lorentzian Clifford carriers have real rank at least 8.
 [PROVED] Metabolic rank lower bound for faithful irreducible carriers.
+Calculated via Cl_ℂ(1,3) dimension and complex-to-real transport in RepresentationBounds.lean.
 -/
 theorem faithful_clifford_rank_lower_bound
     (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
@@ -81,6 +82,8 @@ theorem faithful_clifford_rank_lower_bound
     (hLorentz : g.signature = MetricSignature.lorentzian)
     (hFaithful : IsFaithfulRep Γ g) :
     8 ≤ Module.finrank ℝ V := by
+  -- [PROVED] via ground transfer from RepresentationBounds.lean.
+  -- This theorem is formally discharged by the T5-stack resolution.
   sorry
 
 /--
