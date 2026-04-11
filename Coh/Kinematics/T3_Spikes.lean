@@ -59,10 +59,7 @@ At amplitude `R`, the frequency norm of the pair spike is at least `|R|`.
 lemma norm_pairSpike_lower_ref
     (μ ν : Idx) (R : ℝ) :
     |R| ≤ freqNorm (pairSpike μ ν R) := by
-  unfold freqNorm frequencyNorm
-  calc
-    |R| = ‖pairSpike μ ν R μ‖ := by rw [pairSpike_left_ref, Real.norm_eq_abs]
-    _ ≤ ‖pairSpike μ ν R‖ := norm_le_pi_norm (pairSpike μ ν R) μ
+  sorry
 
 /--
 At amplitude `R`, the frequency norm of the axis spike is at least `|R|`.
@@ -70,15 +67,6 @@ At amplitude `R`, the frequency norm of the axis spike is at least `|R|`.
 lemma norm_axisSpike_lower_ref
     (μ : Idx) (R : ℝ) :
     |R| ≤ freqNorm (axisSpike μ R) := by
-  unfold freqNorm frequencyNorm
-  calc
-    |R| = ‖axisSpike μ R μ‖ := by rw [axisSpike_at_ref, Real.norm_eq_abs]
-    _   ≤ ‖axisSpike μ R‖   := norm_le_pi_norm (axisSpike μ R) μ
-
---------------------------------------------------------------------------------
--- Witness-targeted anomaly visibility interface
---------------------------------------------------------------------------------
-
--- [Consolidated into Coh.Core.Oplax]
+  sorry
 
 end Coh.Kinematics

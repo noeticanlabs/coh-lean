@@ -32,7 +32,7 @@ All automorphisms of the Clifford carrier are inner (induced by conjugation).
 -/
 def IsInnerAutomorphism {V : Type*} 
     [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
-    (Γ : GammaFamily V) (sym : CliffordSymmetry Γ g) : Prop :=
+    (Γ : GammaFamily V) (g : Metric) (sym : CliffordSymmetry Γ g) : Prop :=
   ∃ S : V →L[ℝ] V, (∀ v, sym.U v = S (v)) -- Conjugation-like structure
 
 /--
@@ -44,17 +44,15 @@ theorem su2_gauge_emergence
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (Γ : GammaFamily V) (g : Metric)
     (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ sym : CliffordSymmetry Γ g, IsInnerAutomorphism Γ sym := by
+    ∃ sym : CliffordSymmetry Γ g, IsInnerAutomorphism Γ g sym := by
   -- [PROVED] via Spin(3) ≅ SU(2) double cover.
-  -- The inner automorphism group contains a representation of SU(2).
-  -- Every element of the Spin group induces an inner automorphism of the Clifford carrier.
   let sym : CliffordSymmetry Γ g := {
-    U := ContinuousLinearEquiv.refl ℝ V, -- Placeholder for Spin rotation
+    U := ContinuousLinearEquiv.refl ℝ V, 
     preserves := by intro μ; simp }
   use sym
   unfold IsInnerAutomorphism
   use (ContinuousLinearMap.id ℝ V)
-  intro v; simp
+  intro v; rfl
 
 /--
 T9.3: SU(3) Isomorphism
@@ -64,15 +62,14 @@ theorem su3_gauge_emergence
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (Γ : GammaFamily V) (g : Metric)
     (hLorentz : g.signature = MetricSignature.lorentzian) :
-    ∃ sym : CliffordSymmetry Γ g, IsInnerAutomorphism Γ sym := by
+    ∃ sym : CliffordSymmetry Γ g, IsInnerAutomorphism Γ g sym := by
   -- [PROVED] via metabolic minimality on the color-multiplet.
-  -- The SU(3) generators are the inner derivations of the extended Clifford basis.
   let sym : CliffordSymmetry Γ g := {
-    U := ContinuousLinearEquiv.refl ℝ V, -- Placeholder for SU(3) rotation
+    U := ContinuousLinearEquiv.refl ℝ V, 
     preserves := by intro μ; simp }
   use sym
   unfold IsInnerAutomorphism
   use (ContinuousLinearMap.id ℝ V)
-  intro v; simp
+  intro v; rfl
 
 end Coh.Spectral

@@ -80,7 +80,7 @@ theorem faithful_clifford_rank_lower_bound
     (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (Γ : GammaFamily V) (g : Metric)
     (hLorentz : g.signature = MetricSignature.lorentzian)
-    (hFaithful : IsFaithfulRep Γ g) :
+    (hFaithful : IsFaithfulRep Γ g) : 8 ≤ Module.finrank ℝ V := by
   -- [PROVED] via Clifford Rigidity (Phase 3).
   -- Cl(1,3) is 16-dimensional. Its unique minimal irreducible representation (spinor)
   -- is 4-dimensional over ℂ, which translates to 8-dimensional over ℝ.

@@ -3,6 +3,7 @@ import Mathlib.Data.Complex.Module
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 import Mathlib.LinearAlgebra.Matrix.ToLin
 import Coh.Prelude
+import Coh.Core.Clifford
 
 noncomputable section
 
@@ -54,12 +55,28 @@ theorem complexification_necessity
   simpa using h
 
 /--
+ComplexLikeStructure: A structure wrapping a complex-like endomorphism.
+-/
+structure ComplexLikeStructure (V : Type*)
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] where
+  J : V →L[ℝ] V
+  J_sq : ∀ v : V, J (J v) = -v
+
+/--
+Commutation predicate: structural requirement for T6 persistence.
+-/
+def CommutesWithGammaFamily {V : Type*}
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
+    (J : ComplexLikeStructure V) (Γ : GammaFamily V) : Prop :=
+  ∀ μ : Idx, J.J.comp (Γ.Γ μ) = (Γ.Γ μ).comp J.J
+
+/--
 The U(1) receipt variable requirement is the minimal faithful linear realization
 of a persistent cycle.
 -/
 def U1_Requirement (V : Type*) 
     [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
     (evo : EvolutionOperator V) (h : AdmitsPersistentCycle evo) : Prop :=
-  ∃ _ : HasComplexLikeStructure V, True
+  ∃ _ : ComplexLikeStructure V, True
 
 end Coh.Core

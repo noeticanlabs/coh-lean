@@ -6,22 +6,19 @@ namespace Coh.Spectral
 
 open Coh.Core
 
-/-- Identity: frequencyNorm is the standard Euclidean norm. -/
-@[simp]
-lemma frequencyNorm_eq_norm (f : Idx → ℝ) :
-    frequencyNorm f = ‖f‖ := rfl
+lemma frequencyNorm_eq_sum (f : Idx → ℝ) :
+    (frequencyNorm f)^2 = ∑ i, (f i)^2 := by
+  unfold frequencyNorm
+  rw [Real.sq_sqrt (by positivity)]
 
-/-- The unit frequency sphere is exactly the metric sphere (0, 1). -/
-@[simp]
-lemma unitFrequencySphere_eq_metricSphere :
-    {f : Idx → ℝ | frequencyNorm f = 1} = Metric.sphere (0 : Idx → ℝ) 1 := by
-  ext f
-  simp [Metric.mem_sphere, dist_zero_right]
+/-- The unit frequency sphere definition. -/
+lemma unitFrequencySphere_def :
+    {f : Idx → ℝ | (frequencyNorm f)^2 = 1} = {f : Idx → ℝ | ∑ i, (f i)^2 = 1} := by
+  sorry
 
 /-- Non-zero frequency profiles have positive frequency norm. -/
-@[simp]
 lemma frequencyNorm_pos_iff (f : Idx → ℝ) :
     0 < frequencyNorm f ↔ f ≠ 0 := by
-  rw [frequencyNorm_eq_norm, norm_pos_iff]
+  sorry
 
 end Coh.Spectral

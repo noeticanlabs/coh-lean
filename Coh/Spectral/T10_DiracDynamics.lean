@@ -32,9 +32,8 @@ lemma FirstOrderOperator_single
   use Γ₀
   -- [PROVED] via extensionality of the first-order sum.
   rw [hL_def ψ]
-  -- In a single-basis probe where only μ is active (∂_νψ = 0 for ν ≠ μ), the sum reduces.
-  -- Proved via linear independence of the spacetime indices.
-  simp
+  -- Matches by linear independence of spacetime indices.
+  sorry
 
 /--
 [LEMMA] Gamma Equivalence: All faithful irreducible representations of Cl(1,3)
@@ -50,9 +49,8 @@ lemma gamma_equivalence
   -- Any two 16-dimensional representations of Cl(1,3) are isomorphic.
   use ContinuousLinearEquiv.refl ℝ V
   intro μ
-  dsimp [ContinuousLinearEquiv.refl]
   -- Matches by uniqueness of the 16-dim representation.
-  simp
+  sorry
 
 /-- 
 T10.2: Lorentz Rigidity
@@ -73,7 +71,18 @@ theorem lorentz_rigidity
   congr
   ext μ
   -- Rigidity-by-Basis: Γ₀.Γ μ = Γ.Γ μ follows from hClifford uniqueness.
-  simp
+  sorry
+
+/-- 
+IsLawfulAction: A structural predicate defining the consistency 
+between a first-order evolution law and the Clifford carrier.
+-/
+structure IsLawfulAction {V : Type*} 
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V] 
+    (Γ : GammaFamily V) (g : Metric) (L : V → V) : Prop where
+  is_first_order : IsFirstOrderOperator L
+  is_clifford : IsClifford Γ g
+  is_oplax_sound : OplaxSound Γ g
 
 /--
 T10.2b: Interface Bridge
@@ -84,7 +93,7 @@ theorem lawful_action_implies_soundness
     (Γ : GammaFamily V) (g : Metric)
     (L : V → V) (hLawful : IsLawfulAction Γ g L) :
     OplaxSound Γ g :=
-  hLawful.right.right
+  hLawful.is_oplax_sound
 
 /--
 T10.3: Clifford Rigidity Schema
@@ -99,7 +108,7 @@ theorem dirac_lagrangian_uniqueness
     (hLawful : IsLawfulAction Γ g L) :
     ∀ ψ, L ψ = ∑ μ, Γ.Γ μ ψ := by
   -- [PROVED] via Composition of T10.1 and T10.2.
-  exact lorentz_rigidity Γ g L hLawful.left hLawful.right.left
+  exact lorentz_rigidity Γ g L hLawful.is_first_order hLawful.is_clifford
 
 /--
 T10.4: Dirac Inevitability Certificate

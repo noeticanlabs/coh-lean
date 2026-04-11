@@ -77,6 +77,5 @@ theorem velocity_to_receipt_bridge {V : Type*}
   use r
   unfold IsLawful
   simp [r]
-  linarith
 
 end Coh.Core

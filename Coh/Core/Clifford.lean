@@ -54,8 +54,8 @@ def HasMismatchWitness : Prop :=
   ∃ μ ν : Idx, IsMismatchWitness Γ g μ ν
 
 /-- Frequency norm (Euclidean). -/
-def frequencyNorm (f : Idx → ℝ) : ℝ :=
-  ‖f‖
+noncomputable def frequencyNorm (f : Idx → ℝ) : ℝ :=
+  Real.sqrt (∑ i, (f i)^2)
 
 /-- Measurement anomaly at a frequency profile. -/
 def anomaly (f : Idx → ℝ) : V →L[ℝ] V :=

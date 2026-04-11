@@ -1,4 +1,5 @@
 import Coh.Core.Clifford
+import Coh.Core.Oplax
 import Coh.Kinematics.T3_CoerciveVisibility
 
 noncomputable section
@@ -11,8 +12,7 @@ open Coh Coh.Core
 -- Necessity composition layer
 --------------------------------------------------------------------------------
 
-variable (V : Type*)
-variable [CarrierSpace V]
+variable (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
 
 /--
 Converse T3 theorem schema:
@@ -23,31 +23,31 @@ If
 
 then coercive oplax soundness forces the Clifford relation.
 -/
-theorem clifford_of_coercive_soundness_composition
+theorem T3_Necessity_Attractor
     (Γ : GammaFamily V)
     (g : Metric)
     (Δ : (Idx → ℝ) → ℝ)
-    (hSub : SubquadraticDefectBound Δ)
-    (hSound : CoercivelyOplaxSound V Γ g Δ)
-    (hBridge : NonCliffordVisibilityBridge V Γ g) :
+    (hSub : SubquadraticDefectBound Γ g Δ)
+    (hSound : CoercivelyOplaxSound Γ g Δ)
+    (hBridge : NonCliffordVisibilityBridge Γ g) :
     IsClifford Γ g := by
   by_contra hNotCl
-  have hVis : QuadraticAnomalyVisible V Γ g := hBridge hNotCl
-  exact anomaly_contradicts_subquadratic_defect V Γ g Δ hVis hSub hSound
+  have hVis : QuadraticAnomalyVisible Γ g := hBridge hNotCl
+  exact anomaly_contradicts_subquadratic_defect Γ g Δ hVis hSub hSound
 
 /--
 A convenient corollary phrased directly in terms of the T3 bridge.
 -/
-theorem oplaxSound_forces_clifford
+theorem T3_Necessity_Corollary
     (Γ : GammaFamily V)
     (g : Metric)
     (Δ : (Idx → ℝ) → ℝ)
-    (hSub : SubquadraticDefectBound Δ)
-    (hSound : CoercivelyOplaxSound V Γ g Δ)
-    (hBridge : NonCliffordVisibilityBridge V Γ g) :
+    (hSub : SubquadraticDefectBound Γ g Δ)
+    (hSound : CoercivelyOplaxSound Γ g Δ)
+    (hBridge : NonCliffordVisibilityBridge Γ g) :
     OplaxSound Γ g := by
-  have hCl : IsClifford Γ g :=
-    clifford_of_coercive_soundness_composition Γ g Δ hSub hSound hBridge
+  have hCl : Coh.IsClifford Γ g :=
+    @T3_Necessity_Attractor V instNormedAddCommGroup instNormedSpace instInnerProductSpace instCarrierSpace Γ g Δ hSub hSound hBridge
   exact oplaxSound_of_clifford Γ g hCl
 
 --------------------------------------------------------------------------------

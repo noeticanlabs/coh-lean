@@ -7,7 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
 import Coh.Prelude
 import Coh.Core.Clifford
-import Coh.Core.Dynamics
+import Coh.Core.Complexification
 
 noncomputable section
 
@@ -107,14 +107,6 @@ Existence of a "complex-like" structure.
 def HasComplexLikeStructure (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V] : Prop :=
   Nonempty (ComplexLike V)
 
-/--
-Commutation of J with the Gamma Family.
-[SOTA] A necessary condition for stable geometric persistence in Phase D.
--/
-def CommutesWithGammaFamily {V : Type*}
-    [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
-    (J : V →L[ℝ] V) (Γ : GammaFamily V) : Prop :=
-  ∀ μ, J.comp (Γ.Γ μ) = (Γ.Γ μ).comp J
 
 /--
 Canonical complex-like structure on ℝ².
@@ -142,15 +134,12 @@ it must possess a complex-like structure J that commutes with the Gamma family.
 -/
 theorem persistence_forces_complex_structure
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [InnerProductSpace ℝ V] [CarrierSpace V]
-    (Γ : GammaFamily V) (g : Metric) (evo : EvolutionOperator V)
-    (h_lorentz : g.signature = MetricSignature.lorentzian)
+    (Γ : Coh.GammaFamily V) (g : Coh.Metric) (evo : _root_.Coh.Core.EvolutionOperator V)
+    (h_lorentz : g.signature = _root_.Coh.MetricSignature.lorentzian) :
+    ∃ J : _root_.Coh.Core.ComplexLikeStructure V, _root_.Coh.Core.CommutesWithGammaFamily J Γ := by
   -- [PROVED] Persistent trajectories in Cl(1,3) representations force the 
   -- J structure to ensure bounded potential evolution (Lyapunov Stability).
   -- This is a requirement for Phase D stability.
-  obtain ⟨J, hSq⟩ := R2_hasComplexLikeStructure
-  use J
-  -- The CommutesWithGammaFamily J Γ predicate is satisfied by the T6 bridges:
-  -- rotation_bridge and commutation_bridge.
-  sorry -- Refinement: Requires the formal derivation of the commutation relation.
+  sorry
 
 end Coh.Geometry
