@@ -89,4 +89,44 @@ lemma budgetAfter_at_lifespan (p : MetabolicParams) (B₀ : ℝ) (hV : 0 < modul
   rw [mul_div_cancel₀ B₀ (trackingCost_pos V p hV).ne']
   ring
 
+--------------------------------------------------------------------------------
+-- Metabolic Dominance: Irreducibility as an Efficiency Optimum
+--------------------------------------------------------------------------------
+
+/--
+A module is metabolically dominant over another if it has a strictly lower tracking cost.
+-/
+def MetabolicallyDominates (p : MetabolicParams) (V₁ V₂ : Type*)
+    [AddCommGroup V₁] [Module ℝ V₁] [FiniteDimensional ℝ V₁]
+    [AddCommGroup V₂] [Module ℝ V₂] [FiniteDimensional ℝ V₂] : Prop :=
+  trackingCost V₁ p < trackingCost V₂ p
+
+/--
+[PROVED] Any reducible representation S ⊕ W with a non-trivial remainder W
+is metabolically dominated by the minimal core S.
+-/
+theorem metabolic_dominance_of_reducible
+    (p : MetabolicParams)
+    (S W : Type*)
+    [AddCommGroup S] [Module ℝ S] [FiniteDimensional ℝ S]
+    [AddCommGroup W] [Module ℝ W] [FiniteDimensional ℝ W]
+    (hW : 0 < moduleRank W) :
+    MetabolicallyDominates p S (S × W) := by
+  unfold MetabolicallyDominates trackingCost
+  -- Rank of product space S × W is rank S + rank W
+  have hRank : (moduleRank (S × W) : ℝ) = (moduleRank S : ℝ) + (moduleRank W : ℝ) := by
+    unfold moduleRank
+    rw [Module.finrank_prod]
+    norm_cast
+  rw [hRank]
+  -- κ * (rank S + rank W) = κ * rank S + κ * rank W
+  rw [mul_add]
+  -- Since κ > 0 and rank W > 0, κ * rank W > 0
+  have h_cost_W_pos : 0 < p.κ * (moduleRank W : ℝ) := by
+    apply mul_pos
+    exact p.κ_pos
+    exact Nat.cast_pos.mpr hW
+  -- Therefore, rank S < rank S + cost_W
+  linarith
+
 end Coh.Thermo

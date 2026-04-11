@@ -68,14 +68,15 @@ theorem velocity_to_receipt_bridge {V : Type*}
   -- Bridge derived via continuity persistence
   let r : Receipt := {
     spend := 0,
-    defect := 0,
+    slack := 0,
     authority := 0,
     h_spend := by linarith,
-    h_defect := by linarith,
+    h_slack := by linarith,
     h_authority := by linarith
   }
   use r
   unfold IsLawful
   simp [r]
+  linarith
 
 end Coh.Core

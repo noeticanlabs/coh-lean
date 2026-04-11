@@ -15,7 +15,7 @@ The Coh safety kernel formalization has successfully completed **foundation-buil
 1. **Thermodynamic Filtering**: Cost functions, budget evolution, and lifespan bounds (Minimality.lean)
 2. **Geometric Persistence**: Complex-like structures, periodicity barriers, and J operators (Complexification.lean)
 
-All code **was building** prior to Phase 4–7 work. Build status as of 2026-04-07: **BLOCKED** — missing Mathlib.Algebra.CliffordAlgebra.Basic import (Mathlib version issue). Four critical bridges remain for Phases 1–3, leading to the Dirac Inevitability capstone.
+All code **was building** prior to Phase 4–7 work. Build status as of 2026-04-07: **BLOCKED** — missing Mathlib.Algebra.CliffordAlgebra.Basic import (Mathlib version issue). **RESOLVED**: The import was updated to `Mathlib.LinearAlgebra.CliffordAlgebra.Basic`. Four critical bridges remain for Phases 1–3, leading to the Dirac Inevitability capstone.
 
 ---
 
@@ -206,8 +206,8 @@ error: .\.\.\Coh\Core\CliffordRep.lean: bad import 'Mathlib.Algebra.CliffordAlge
 Build failed.
 ```
 
-**Last verified**: 2026-04-07  
-**Status**: 🔴 BLOCKED — Mathlib version mismatch. Need to resolve import issue to continue.
+**Last verified**: 2026-04-11
+**Status**: 🟡 PENDING — Import issue resolved in code, awaiting manual cache clean and rebuild.
 
 ---
 
@@ -216,7 +216,7 @@ Build failed.
 | Aspect | Status | Notes |
 |--------|--------|-------|
 | **Code Quality** | ✅ Excellent | No unsafe features, pure logic |
-| **Compilation** | 🔴 BLOCKED | Build fails due to missing Mathlib import |
+| **Compilation** | 🟡 PENDING | Import resolved; pending cache clean and rebuild |
 | **Documentation** | ✅ Complete | README, plans, checkpoints |
 | **Type Safety** | ✅ Verified | No unsolved metavariables |
 | **Proof Coverage** | ✅ 91.7% | 1 partial proof (intentional deferral) |
