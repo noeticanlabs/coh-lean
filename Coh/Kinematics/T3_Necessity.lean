@@ -47,7 +47,7 @@ theorem oplaxSound_forces_clifford
     (hBridge : NonCliffordVisibilityBridge V Γ g) :
     OplaxSound Γ g := by
   have hCl : IsClifford Γ g :=
-    clifford_of_coercive_soundness_composition V Γ g Δ hSub hSound hBridge
+    clifford_of_coercive_soundness_composition Γ g Δ hSub hSound hBridge
   exact oplaxSound_of_clifford Γ g hCl
 
 --------------------------------------------------------------------------------

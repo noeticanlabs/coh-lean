@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTI
 
 ## Terms Summary
 
-- **Copyright**: © 2026 Coh Project - Noetican Labs (Michael Ellington)
+- **Copyright**: © 2026 Noetican Labs (Michael Ellington)
 - **License**: All Rights Reserved — No use permitted without written authorization
 - **Disclaimer**: Software provided as-is without warranties
 - **Liability**: Copyright holders not liable for any damages

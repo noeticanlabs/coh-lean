@@ -84,4 +84,4 @@ This repository remains a **formal scaffold** for Phases 1-3:
     - **Capstone**: `Dirac_Inevitable_Schema` (Physics integration)
 
 ## 📝 License
-Built with ❤️ by the Coh Project Contributors. Released under the [MIT License](LICENSE).
+Copyright © 2026 Noetican Labs (Michael Ellington). All Rights Reserved.
